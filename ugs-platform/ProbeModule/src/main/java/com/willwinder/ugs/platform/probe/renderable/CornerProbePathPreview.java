@@ -18,9 +18,6 @@
  */
 package com.willwinder.ugs.platform.probe.renderable;
 
-import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.GLAutoDrawable;
-import com.jogamp.opengl.util.gl2.GLUT;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import com.willwinder.ugs.platform.probe.ProbeParameters;
 import com.willwinder.ugs.platform.probe.renderable.ProbeRenderableHelpers.Side;
@@ -29,8 +26,8 @@ import com.willwinder.universalgcodesender.model.Position;
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_PROBE_PREVIEW;
 import static com.willwinder.ugs.platform.probe.renderable.ProbeRenderableHelpers.Side.NEGATIVE;
 import static com.willwinder.ugs.platform.probe.renderable.ProbeRenderableHelpers.Side.POSITIVE;
-import static com.willwinder.ugs.platform.probe.renderable.ProbeRenderableHelpers.drawArrow;
-import static com.willwinder.ugs.platform.probe.renderable.ProbeRenderableHelpers.drawTouchPlate;
+// import static com.willwinder.ugs.platform.probe.renderable.ProbeRenderableHelpers.drawArrow;
+// import static com.willwinder.ugs.platform.probe.renderable.ProbeRenderableHelpers.drawTouchPlate;
 
 /**
  *
@@ -42,11 +39,11 @@ public abstract class CornerProbePathPreview extends AbstractProbePreview {
     private Position startWork = null;
     private ProbeParameters pc = null;
 
-    private final GLUT glut;
+    // private final GLUT glut;
 
     public CornerProbePathPreview(String title) {
         super(10, title);
-        glut = new GLUT();
+        // glut = new GLUT();
     }
 
     public void setContext(ProbeParameters pc, Position startWork) {
@@ -76,7 +73,7 @@ public abstract class CornerProbePathPreview extends AbstractProbePreview {
     }
 
     @Override
-    public void init(GLAutoDrawable drawable) {
+    public void init() {
     }
 
     @Override
@@ -92,115 +89,115 @@ public abstract class CornerProbePathPreview extends AbstractProbePreview {
                 && this.thickness.z == 0;
     }
 
-    private void drawXY(GL2 gl, Side X, Side Y) {
-        double previewSize = Math.max(5, Math.max(thickness.x * 4, thickness.y * 4));
-        double previewDepth = Math.min(thickness.x, thickness.y);
-        double inset = 2.5;
-        double lip = 4;
-        drawTouchPlate(gl, glut,
-            new Position(spacing.x, spacing.y, spacing.z),
-            inset,
-            previewSize,
-            thickness,
-            previewDepth + lip,
-            previewDepth,
-            X, Y);
+    // private void drawXY(GL2 gl, Side X, Side Y) {
+    //     double previewSize = Math.max(5, Math.max(thickness.x * 4, thickness.y * 4));
+    //     double previewDepth = Math.min(thickness.x, thickness.y);
+    //     double inset = 2.5;
+    //     double lip = 4;
+    //     drawTouchPlate(gl, glut,
+    //         new Position(spacing.x, spacing.y, spacing.z),
+    //         inset,
+    //         previewSize,
+    //         thickness,
+    //         previewDepth + lip,
+    //         previewDepth,
+    //         X, Y);
 
-        // Everything is going to be red now!
-        gl.glColor4d(8., 0., 0., 1);
+    //     // Everything is going to be red now!
+    //     gl.glColor4d(8., 0., 0., 1);
 
-        // y probe arrows
-        drawArrow(gl, glut,
-                new Position(0, 0, 0),
-                new Position(spacing.x, 0, 0));
-        drawArrow(gl, glut,
-                new Position(spacing.x, 0, 0),
-                new Position(spacing.x, spacing.y - inset, 0));
+    //     // y probe arrows
+    //     drawArrow(gl, glut,
+    //             new Position(0, 0, 0),
+    //             new Position(spacing.x, 0, 0));
+    //     drawArrow(gl, glut,
+    //             new Position(spacing.x, 0, 0),
+    //             new Position(spacing.x, spacing.y - inset, 0));
 
-        // x probe arrows
-        drawArrow(gl, glut,
-                new Position(0, 0, 0),
-                new Position(0, spacing.y, 0));
-        drawArrow(gl, glut,
-                new Position(0, spacing.y, 0),
-                new Position(spacing.x - inset, spacing.y, 0));
-    }
+    //     // x probe arrows
+    //     drawArrow(gl, glut,
+    //             new Position(0, 0, 0),
+    //             new Position(0, spacing.y, 0));
+    //     drawArrow(gl, glut,
+    //             new Position(0, spacing.y, 0),
+    //             new Position(spacing.x - inset, spacing.y, 0));
+    // }
 
-    private void drawXYZ(GL2 gl, Side X, Side Y) {
-        double previewSize = Math.max(5, Math.max(thickness.x * 4, thickness.y * 4));
-        double previewDepth = thickness.z;
-        double inset = 2.5;
-        double lip = 4;
-        drawTouchPlate(gl, glut,
-            new Position(0, 0, spacing.z),
-            inset,
-            previewSize,
-            thickness,
-            previewDepth + lip,
-            previewDepth,
-            X, Y);
+    // private void drawXYZ(GL2 gl, Side X, Side Y) {
+    //     double previewSize = Math.max(5, Math.max(thickness.x * 4, thickness.y * 4));
+    //     double previewDepth = thickness.z;
+    //     double inset = 2.5;
+    //     double lip = 4;
+    //     drawTouchPlate(gl, glut,
+    //         new Position(0, 0, spacing.z),
+    //         inset,
+    //         previewSize,
+    //         thickness,
+    //         previewDepth + lip,
+    //         previewDepth,
+    //         X, Y);
 
-        // Everything is going to be red now!
-        gl.glColor4d(8., 0., 0., 1);
+    //     // Everything is going to be red now!
+    //     gl.glColor4d(8., 0., 0., 1);
 
-        // z arrow
-        drawArrow(gl, glut,
-                new Position(.25, .25, 0),
-                new Position(.25, .25, spacing.z - Math.signum(spacing.z) * inset));
-        drawArrow(gl, glut,
-                new Position(-0.25, -0.25, spacing.z - Math.signum(spacing.z) * inset),
-                new Position(-0.25, -0.25, 0.));
+    //     // z arrow
+    //     drawArrow(gl, glut,
+    //             new Position(.25, .25, 0),
+    //             new Position(.25, .25, spacing.z - Math.signum(spacing.z) * inset));
+    //     drawArrow(gl, glut,
+    //             new Position(-0.25, -0.25, spacing.z - Math.signum(spacing.z) * inset),
+    //             new Position(-0.25, -0.25, 0.));
 
-        // x probe arrows
-        drawArrow(gl, glut,
-                new Position(0, 0, 0),
-                new Position(-spacing.x, 0, 0));
-        drawArrow(gl, glut,
-                new Position(-spacing.x, 0, 0),
-                new Position(-spacing.x, 0, spacing.z));
-        drawArrow(gl, glut,
-                new Position(-spacing.x, 0, spacing.z),
-                new Position(-X.side(inset), 0, spacing.z));
+    //     // x probe arrows
+    //     drawArrow(gl, glut,
+    //             new Position(0, 0, 0),
+    //             new Position(-spacing.x, 0, 0));
+    //     drawArrow(gl, glut,
+    //             new Position(-spacing.x, 0, 0),
+    //             new Position(-spacing.x, 0, spacing.z));
+    //     drawArrow(gl, glut,
+    //             new Position(-spacing.x, 0, spacing.z),
+    //             new Position(-X.side(inset), 0, spacing.z));
 
-        // y probe arrows
-        drawArrow(gl, glut,
-                new Position(-spacing.x, 0, spacing.z),
-                new Position(-spacing.x, -spacing.y, spacing.z));
-        drawArrow(gl, glut,
-                new Position(-spacing.x, -spacing.y, spacing.z),
-                new Position(0, -spacing.y, spacing.z));
-        drawArrow(gl, glut,
-                new Position(0, -spacing.y, spacing.z),
-                new Position(0, -Y.side(inset), spacing.z));
-    }
+    //     // y probe arrows
+    //     drawArrow(gl, glut,
+    //             new Position(-spacing.x, 0, spacing.z),
+    //             new Position(-spacing.x, -spacing.y, spacing.z));
+    //     drawArrow(gl, glut,
+    //             new Position(-spacing.x, -spacing.y, spacing.z),
+    //             new Position(0, -spacing.y, spacing.z));
+    //     drawArrow(gl, glut,
+    //             new Position(0, -spacing.y, spacing.z),
+    //             new Position(0, -Y.side(inset), spacing.z));
+    // }
 
     @Override
-    public void draw(GLAutoDrawable drawable, boolean idle, Position machineCoord, Position workCoord, Position objectMin, Position objectMax, double scaleFactor, Position mouseWorldCoordinates, Position rotation) {
-        if (invalidSettings()) return;
+    public void draw( boolean idle, Position machineCoord, Position workCoord, Position objectMin, Position objectMax, double scaleFactor, Position mouseWorldCoordinates, Position rotation) {
+        // if (invalidSettings()) return;
 
-        GL2 gl = drawable.getGL().getGL2();
+        // GL2 gl = drawable.getGL().getGL2();
 
-        if (startWork != null && pc.endPosition == null && isProbeCycleActive()) {
-            // The WCS is reset at the start of these operations.
-            if (pc.startPosition != null) {
-            }
-            // Follow tool.
-            else {
-                gl.glTranslated(startWork.x, startWork.y, startWork.z);
-            }
-        }
-        // Follow tool.
-        else {
-            gl.glTranslated(workCoord.x, workCoord.y, workCoord.z);
-        }
+        // if (startWork != null && pc.endPosition == null && isProbeCycleActive()) {
+        //     // The WCS is reset at the start of these operations.
+        //     if (pc.startPosition != null) {
+        //     }
+        //     // Follow tool.
+        //     else {
+        //         gl.glTranslated(startWork.x, startWork.y, startWork.z);
+        //     }
+        // }
+        // // Follow tool.
+        // else {
+        //     gl.glTranslated(workCoord.x, workCoord.y, workCoord.z);
+        // }
 
-        Side X = (spacing.x > 0) ? POSITIVE : NEGATIVE;
-        Side Y = (spacing.y > 0) ? POSITIVE : NEGATIVE;
-        if (spacing.z == 0) {
-            drawXY(gl, X, Y);
-        } else {
-            drawXYZ(gl, X, Y);
-        }
+        // Side X = (spacing.x > 0) ? POSITIVE : NEGATIVE;
+        // Side Y = (spacing.y > 0) ? POSITIVE : NEGATIVE;
+        // if (spacing.z == 0) {
+        //     drawXY(gl, X, Y);
+        // } else {
+        //     drawXYZ(gl, X, Y);
+        // }
     }
 
     @Override

@@ -18,9 +18,6 @@
  */
 package com.willwinder.ugs.nbm.visualizer.renderables;
 
-import static com.jogamp.opengl.GL.GL_LINES;
-import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.GLAutoDrawable;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_GRID;
@@ -29,6 +26,9 @@ import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUAL
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_XY_PLANE;
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_Y;
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_Z;
+
+import org.lwjgl.opengl.GL20;
+
 import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
@@ -74,7 +74,7 @@ public class Grid extends Renderable {
     }
 
     @Override
-    public void init(GLAutoDrawable drawable) {
+    public void init() {
     }
 
     private double getBestStepSize(double maxSide) {
@@ -107,7 +107,7 @@ public class Grid extends Renderable {
     }
 
     @Override
-    public void draw(GLAutoDrawable drawable, boolean idle, Position machineCoord, Position workCoord, Position focusMin, Position focusMax, double scaleFactor, Position mouseCoordinates, Position rotation) {
+    public void draw( boolean idle, Position machineCoord, Position workCoord, Position focusMin, Position focusMax, double scaleFactor, Position mouseCoordinates, Position rotation) {
         double maxSide = VisualizerUtils.findMaxSide(focusMin, focusMax);
         if (maxSide == 0) {
             maxSide = 1;
@@ -122,70 +122,69 @@ public class Grid extends Renderable {
         topRight.x = getDistFromZeroForStepSize(stepSize, topRight.x, false);
         topRight.y = getDistFromZeroForStepSize(stepSize, topRight.y, false);
 
-        GL2 gl = drawable.getGL().getGL2();
-        gl.glPushMatrix();
+        GL20.glPushMatrix();
             double offset = 0.001;
 
-            gl.glLineWidth(1.5f);
+            GL20.glLineWidth(1.5f);
             // grid
-            gl.glBegin(GL_LINES);
+            GL20.glBegin(GL20.GL_LINES);
             for(double x=bottomLeft.x;x<=topRight.x;x+=stepSize) {
                 for (double y=bottomLeft.y; y<=topRight.y; y+=stepSize) {
                     if (x==0) continue; 
-                    gl.glColor4fv(gridLineColor, 0);
+                    GL20.glColor4fv(gridLineColor);
 
-                    gl.glVertex3d(x, bottomLeft.y, offset);
-                    gl.glVertex3d(x, topRight.y  , offset);
+                    GL20.glVertex3d(x, bottomLeft.y, offset);
+                    GL20.glVertex3d(x, topRight.y  , offset);
 
-                    gl.glVertex3d(x, bottomLeft.y, -offset);
-                    gl.glVertex3d(x, topRight.y  , -offset);
+                    GL20.glVertex3d(x, bottomLeft.y, -offset);
+                    GL20.glVertex3d(x, topRight.y  , -offset);
                     
                     if (y==0) continue;
-                    gl.glColor4fv(gridLineColor, 0);
-                    gl.glVertex3d(bottomLeft.x, y,  offset);
-                    gl.glVertex3d(topRight.x  , y,  offset);
+                    GL20.glColor4fv(gridLineColor);
+                    GL20.glVertex3d(bottomLeft.x, y,  offset);
+                    GL20.glVertex3d(topRight.x  , y,  offset);
 
-                    gl.glVertex3d(bottomLeft.x, y, -offset);
-                    gl.glVertex3d(topRight.x  , y, -offset);
+                    GL20.glVertex3d(bottomLeft.x, y, -offset);
+                    GL20.glVertex3d(topRight.x  , y, -offset);
                 }
             }
-            gl.glEnd();
+            GL20.glEnd();
 
-            gl.glLineWidth(5f);
-            gl.glBegin(GL_LINES);
+            GL20.glLineWidth(5f);
+            GL20.glBegin(GL20.GL_LINES);
                 // X Axis Line
-                gl.glColor4fv(yAxisColor, 0);
-                gl.glVertex3d(0, bottomLeft.y, offset);
-                gl.glVertex3d(0, topRight.y  , offset);
+                GL20.glColor4fv(yAxisColor);
+                GL20.glVertex3d(0, bottomLeft.y, offset);
+                GL20.glVertex3d(0, topRight.y  , offset);
 
-                gl.glVertex3d(0, bottomLeft.y, -offset);
-                gl.glVertex3d(0, topRight.y  , -offset);
+                GL20.glVertex3d(0, bottomLeft.y, -offset);
+                GL20.glVertex3d(0, topRight.y  , -offset);
 
                 // Y Axis Line
-                gl.glColor4fv(xAxisColor, 0);
-                gl.glVertex3d(bottomLeft.x, 0,  offset);
-                gl.glVertex3d(topRight.x  , 0,  offset);
+                GL20.glColor4fv(xAxisColor);
+                GL20.glVertex3d(bottomLeft.x, 0,  offset);
+                GL20.glVertex3d(topRight.x  , 0,  offset);
 
-                gl.glVertex3d(bottomLeft.x, 0, -offset);
-                gl.glVertex3d(topRight.x  , 0, -offset);
+                GL20.glVertex3d(bottomLeft.x, 0, -offset);
+                GL20.glVertex3d(topRight.x  , 0, -offset);
 
                 // Z Axis Line
-                gl.glColor4fv(zAxisColor, 0);
-                gl.glVertex3d(0, 0, bottomLeft.z);
-                gl.glVertex3d(0, 0, Math.max(topRight.z, -bottomLeft.z));
-            gl.glEnd();
+                GL20.glColor4fv(zAxisColor);
+                GL20.glVertex3d(0, 0, bottomLeft.z);
+                GL20.glVertex3d(0, 0, Math.max(topRight.z, -bottomLeft.z));
+            GL20.glEnd();
 
-            //gl.glColor4f(.3f,.3f,.3f, .09f);
-            gl.glColor4fv(gridPlaneColor, 0);
+            //GL20.glColor4f(.3f,.3f,.3f, .09f);
+            GL20.glColor4fv(gridPlaneColor);
 
             // floor - cover entire model and a little extra.
-            gl.glBegin(GL2.GL_QUADS);
-                gl.glVertex3d(bottomLeft.x, bottomLeft.y, 0);
-                gl.glVertex3d(bottomLeft.x, topRight.y  , 0);
-                gl.glVertex3d(topRight.x  , topRight.y  , 0);
-                gl.glVertex3d(topRight.x  , bottomLeft.y, 0);
-            gl.glEnd();
-        gl.glPopMatrix();
+            GL20.glBegin(GL20.GL_QUADS);
+                GL20.glVertex3d(bottomLeft.x, bottomLeft.y, 0);
+                GL20.glVertex3d(bottomLeft.x, topRight.y  , 0);
+                GL20.glVertex3d(topRight.x  , topRight.y  , 0);
+                GL20.glVertex3d(topRight.x  , bottomLeft.y, 0);
+            GL20.glEnd();
+        GL20.glPopMatrix();
     }
 
     @Override

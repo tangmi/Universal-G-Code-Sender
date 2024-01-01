@@ -45,7 +45,7 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.pendantui.PendantUI;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
-import com.willwinder.universalgcodesender.visualizer.VisualizerWindow;
+// import com.willwinder.universalgcodesender.visualizer.VisualizerWindow;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.model.GUIBackend;
@@ -96,7 +96,7 @@ public class MainWindow extends JFrame implements UGSEventListener {
     private javax.swing.JFileChooser fileChooser;
 
     // Other windows
-    private VisualizerWindow vw = null;
+    // private VisualizerWindow vw = null;
     private String gcodeFile = null;
     private String processedGcodeFile = null;
 
@@ -1176,40 +1176,40 @@ public class MainWindow extends JFrame implements UGSEventListener {
 
     private void visualizeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_visualizeButtonActionPerformed
         // Create new object if it is null.
-        if (this.vw == null) {
-            this.vw = new VisualizerWindow(settings.getVisualizerWindowSettings());
+        // if (this.vw == null) {
+        //     this.vw = new VisualizerWindow(settings.getVisualizerWindowSettings());
 
-            final MainWindow mw = this;
-            vw.addComponentListener(new ComponentListener() {
-                @Override
-                public void componentResized(ComponentEvent ce) {
-                    mw.settings.getVisualizerWindowSettings().height = ce.getComponent().getSize().height;
-                    mw.settings.getVisualizerWindowSettings().width = ce.getComponent().getSize().width;
-                }
+        //     final MainWindow mw = this;
+        //     vw.addComponentListener(new ComponentListener() {
+        //         @Override
+        //         public void componentResized(ComponentEvent ce) {
+        //             mw.settings.getVisualizerWindowSettings().height = ce.getComponent().getSize().height;
+        //             mw.settings.getVisualizerWindowSettings().width = ce.getComponent().getSize().width;
+        //         }
 
-                @Override
-                public void componentMoved(ComponentEvent ce) {
-                    mw.settings.getVisualizerWindowSettings().xLocation = ce.getComponent().getLocation().x;
-                    mw.settings.getVisualizerWindowSettings().yLocation = ce.getComponent().getLocation().y;
-                }
+        //         @Override
+        //         public void componentMoved(ComponentEvent ce) {
+        //             mw.settings.getVisualizerWindowSettings().xLocation = ce.getComponent().getLocation().x;
+        //             mw.settings.getVisualizerWindowSettings().yLocation = ce.getComponent().getLocation().y;
+        //         }
 
-                @Override
-                public void componentShown(ComponentEvent ce) {}
-                @Override
-                public void componentHidden(ComponentEvent ce) {}
-            });
+        //         @Override
+        //         public void componentShown(ComponentEvent ce) {}
+        //         @Override
+        //         public void componentHidden(ComponentEvent ce) {}
+        //     });
 
-            setVisualizerFile();
+        //     setVisualizerFile();
 
-            // Add listener
-            this.backend.addUGSEventListener(vw);
-        }
+        //     // Add listener
+        //     this.backend.addUGSEventListener(vw);
+        // }
 
         // Display the form
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                vw.setVisible(true);
+                // vw.setVisible(true);
             }
         });
     }//GEN-LAST:event_visualizeButtonActionPerformed
@@ -1725,16 +1725,16 @@ public class MainWindow extends JFrame implements UGSEventListener {
      * otherwise uses the unprocessed file.
      */
     private void setVisualizerFile() {
-        if (vw == null) return;
+        // if (vw == null) return;
 
-        if (processedGcodeFile == null) {
-            if (gcodeFile == null) {
-                return;
-            }
-            vw.setGcodeFile(gcodeFile);
-        } else {
-            vw.setProcessedGcodeFile(processedGcodeFile);
-        }
+        // if (processedGcodeFile == null) {
+        //     if (gcodeFile == null) {
+        //         return;
+        //     }
+        //     vw.setGcodeFile(gcodeFile);
+        // } else {
+        //     vw.setProcessedGcodeFile(processedGcodeFile);
+        // }
     }
 
     @Override
@@ -1811,9 +1811,9 @@ public class MainWindow extends JFrame implements UGSEventListener {
                             commandTable.updateRow(command);
                         }
 
-                        if (backend.isSendingFile() && vw != null && !command.isGenerated()) {
-                            vw.setCompletedCommandNumber(command.getCommandNumber());
-                        }
+                        // if (backend.isSendingFile() && vw != null && !command.isGenerated()) {
+                        //     vw.setCompletedCommandNumber(command.getCommandNumber());
+                        // }
                     });
                 } else if (commandEvent.getCommandEventType() == CommandEventType.COMMAND_SENT || commandEvent.getCommandEventType() == CommandEventType.COMMAND_SKIPPED) {
                     EventQueue.invokeLater(() -> {

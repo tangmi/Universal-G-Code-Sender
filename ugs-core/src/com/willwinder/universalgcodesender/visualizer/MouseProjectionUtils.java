@@ -21,13 +21,12 @@
  */
 package com.willwinder.universalgcodesender.visualizer;
 
-import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.GLAutoDrawable;
-import com.jogamp.opengl.glu.GLU;
 import com.willwinder.universalgcodesender.model.Position;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.joml.Matrix4f;
+import org.lwjgl.opengl.GL20;
 
 /**
  *
@@ -36,16 +35,14 @@ import java.util.logging.Logger;
 public class MouseProjectionUtils {
     private static final Logger logger = Logger.getLogger(MouseProjectionUtils.class.getName());
 
-    private static final GLU GLU = new GLU();
+    // private static final GLU GLU = new GLU();
 
     /**
      * Get the near/far mouse locations in world space coordinates.
      * 
      * Utilize gluUnProject to get the points.
      */
-    private static Vector3[] getRayFromMouse(GLAutoDrawable drawable, int mouseX, int mouseY) {
-
-        GL2 gl2 = drawable.getGL().getGL2();
+    private static Vector3[] getRayFromMouse( int mouseX, int mouseY) {
 
         int[] viewPort = new int[4];
         double[] modelViewMatrix = new double[16];
@@ -53,9 +50,9 @@ public class MouseProjectionUtils {
         double wcoordNear[] = new double[4];
         double wcoordFar[] = new double[4];
 
-        gl2.glGetIntegerv(GL.GL_VIEWPORT, viewPort, 0);
-        gl2.glGetDoublev( GL2.GL_MODELVIEW_MATRIX, modelViewMatrix, 0);
-        gl2.glGetDoublev( GL2.GL_PROJECTION_MATRIX, projectionMatrix, 0);
+        GL20.glGetIntegerv(GL20.GL_VIEWPORT, viewPort);
+        GL20.glGetDoublev( GL20.GL_MODELVIEW_MATRIX, modelViewMatrix);
+        GL20.glGetDoublev( GL20.GL_PROJECTION_MATRIX, projectionMatrix);
 
         //GL y coord pos - note viewport[3] is height of window in pixels
         int realy = viewPort[3] - mouseY - 1;
@@ -68,42 +65,43 @@ public class MouseProjectionUtils {
         // Calculate Ray //
         ///////////////////
 
-        // FAR
-        GLU.gluUnProject((double)mouseX, (double)realy, farDepth,
-                modelViewMatrix, 0,
-                projectionMatrix, 0,
-                viewPort, 0,
-                wcoordFar, 0);
-        // NEAR
-        GLU.gluUnProject((double)mouseX, (double)realy, nearDepth,
-                modelViewMatrix, 0,
-                projectionMatrix, 0,
-                viewPort, 0,
-                wcoordNear, 0);
+        // // FAR
+        // GLU.gluUnProject((double)mouseX, (double)realy, farDepth,
+        //         modelViewMatrix, 0,
+        //         projectionMatrix, 0,
+        //         viewPort, 0,
+        //         wcoordFar, 0);
+        // // NEAR
+        // GLU.gluUnProject((double)mouseX, (double)realy, nearDepth,
+        //         modelViewMatrix, 0,
+        //         projectionMatrix, 0,
+        //         viewPort, 0,
+        //         wcoordNear, 0);
 
         return new Vector3[]{
                 new Vector3(wcoordNear[0], wcoordNear[1], wcoordNear[2]),
                 new Vector3(wcoordFar[0], wcoordFar[1], wcoordFar[2])};
     }
 
-    public static Position intersectPointWithXYPlane(GLAutoDrawable drawable,
+    public static Position intersectPointWithXYPlane(
             int rawMouseX, int rawMouseY) {
 
-        int[] raw = {rawMouseX, rawMouseY};
-        int[] coords = drawable.getNativeSurface().convertToPixelUnits(raw);
-        int mouseX = coords[0];
-        int mouseY = coords[1];
+        // int[] raw = {rawMouseX, rawMouseY};
+        // int[] coords = drawable.getNativeSurface().convertToPixelUnits(raw);
+        // int mouseX = coords[0];
+        // int mouseY = coords[1];
 
-        Vector3[] mouseRay = getRayFromMouse(drawable, mouseX, mouseY);
+        // Vector3[] mouseRay = getRayFromMouse(drawable, mouseX, mouseY);
 
-        Vector3 R1 = mouseRay[0];
-        Vector3 R2 = mouseRay[1];
+        // Vector3 R1 = mouseRay[0];
+        // Vector3 R2 = mouseRay[1];
 
-        Vector3 S1 = new Vector3(-1., 1., 0);
-        Vector3 S2 = new Vector3(1., 1., 0);
-        Vector3 S3 = new Vector3(-1., -1., 0);
+        // Vector3 S1 = new Vector3(-1., 1., 0);
+        // Vector3 S2 = new Vector3(1., 1., 0);
+        // Vector3 S3 = new Vector3(-1., -1., 0);
 
-        return intersectPointWithPlane(R1, R2, S1, S2, S3);
+        // return intersectPointWithPlane(R1, R2, S1, S2, S3);
+        return new Position(0,0,0);
     }
 
     /**

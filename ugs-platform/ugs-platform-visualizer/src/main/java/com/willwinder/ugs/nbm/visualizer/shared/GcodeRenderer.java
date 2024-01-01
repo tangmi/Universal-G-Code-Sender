@@ -18,11 +18,6 @@
  */
 package com.willwinder.ugs.nbm.visualizer.shared;
 
-import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.GLAutoDrawable;
-import com.jogamp.opengl.GLEventListener;
-import com.jogamp.opengl.glu.GLU;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import com.willwinder.ugs.nbm.visualizer.renderables.*;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
@@ -36,20 +31,27 @@ import com.willwinder.universalgcodesender.uielements.helpers.Overlay;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.visualizer.MouseProjectionUtils;
 import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
+
+import org.lwjgl.opengl.awt.AWTGLCanvas;
+import org.lwjgl.opengl.awt.GLData;
+import org.joml.Matrix4f;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.GL;
+import org.lwjgl.opengl.GL11;
 import org.openide.util.lookup.ServiceProvider;
 import org.openide.util.lookup.ServiceProviders;
 
 import java.awt.*;
 import java.awt.event.InputEvent;
+import java.nio.FloatBuffer;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
-import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_BG;
+import javax.swing.SwingUtilities;
 
 /**
  * 3D Canvas for GCode Visualizer
@@ -59,8 +61,8 @@ import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUAL
 @SuppressWarnings("serial")
 @ServiceProviders(value = {
         @ServiceProvider(service = IRenderableRegistrationService.class),
-        @ServiceProvider(service = GcodeRenderer.class)})
-public class GcodeRenderer implements GLEventListener, IRenderableRegistrationService {
+        @ServiceProvider(service = GcodeRenderer.class) })
+public class GcodeRenderer extends AWTGLCanvas implements IRenderableRegistrationService {
     private static final Logger logger = Logger.getLogger(GcodeRenderer.class.getName());
 
     private static boolean ortho = true;
@@ -69,9 +71,6 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
     // Machine data
     private final Position machineCoord;
     private final Position workCoord;
-
-    // GL Utility
-    private GLU glu;
 
     // Projection variables
     private Position center;
@@ -121,6 +120,8 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
      * Constructor.
      */
     public GcodeRenderer() {
+        super(getGLConfiguration());
+
         eye = new Position(0, 0, 1.5);
         center = new Position(0, 0, 0);
         objectMin = new Position(-10, -10, -10);
@@ -137,12 +138,23 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
         objects.add(new MachineBoundries(Localization.getString("platform.visualizer.renderable.machine-boundries")));
         objects.add(new Tool(Localization.getString("platform.visualizer.renderable.tool-location")));
         objects.add(new MouseOver(Localization.getString("platform.visualizer.renderable.mouse-indicator")));
-        objects.add(new OrientationCube(0.5f, Localization.getString("platform.visualizer.renderable.orientation-cube")));
+        objects.add(
+                new OrientationCube(0.5f, Localization.getString("platform.visualizer.renderable.orientation-cube")));
         objects.add(new Grid(Localization.getString("platform.visualizer.renderable.grid")));
         Collections.sort(objects);
 
         reloadPreferences();
         listenForSettingsEvents();
+    }
+
+    private static GLData getGLConfiguration() {
+        GLData data = new GLData();
+//        data.majorVersion = 2;
+//        data.minorVersion = 1;
+
+//        data.contextReleaseBehavior = GLData.ReleaseBehavior.FLUSH;
+         data.samples = 8;
+        return data;
     }
 
     private void listenForSettingsEvents() {
@@ -217,7 +229,7 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
      * GLEventListener method.
      */
     @Override
-    public void init(GLAutoDrawable drawable) {
+    public void initGL() {
         logger.log(Level.INFO, "Initializing OpenGL context.");
         // TODO: Figure out scale factor / dimensions label based on GcodeRenderer
         /*
@@ -231,78 +243,66 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
                     + Localization.getString("VisualizerCanvas.height") + "=" + format.format(objectHeight);
 
         */
+        
+        GL.createCapabilities();
 
-        this.fpsCounter = new FPSCounter(drawable, new Font("SansSerif", Font.BOLD, 12));
-        this.overlay = new Overlay(drawable, new Font("SansSerif", Font.BOLD, 12));
+        this.fpsCounter = new FPSCounter(new Font("SansSerif", Font.BOLD, 12));
+        this.overlay = new Overlay(new Font("SansSerif", Font.BOLD, 12));
         this.overlay.setColor(127, 127, 127, 100);
         this.overlay.setTextLocation(Overlay.LOWER_LEFT);
 
         // Parse random gcode file and generate something to draw.
-        GL2 gl = drawable.getGL().getGL2();      // get the OpenGL graphics context
-        glu = new GLU();                         // get GL Utilities
-        gl.glShadeModel(GL2.GL_SMOOTH); // blends colors nicely, and smoothes out lighting
-        gl.glClearColor(clearColor.getRed() / 255f, clearColor.getGreen() / 255f, clearColor.getBlue() / 255f, clearColor.getAlpha() / 255f);
-        gl.glClearDepth(1.0f);      // set clear depth value to farthest
-        gl.glEnable(GL2.GL_BLEND);
-        gl.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
-        gl.glEnable(GL.GL_DEPTH_TEST);
-        gl.glDepthFunc(GL2.GL_LEQUAL);  // the type of depth test to do
-        gl.glHint(GL2.GL_PERSPECTIVE_CORRECTION_HINT, GL2.GL_NICEST); // best perspective correction
+        GL11.glShadeModel(GL11.GL_SMOOTH); // blends colors nicely, and smoothes out lighting
+        GL11.glClearColor(clearColor.getRed() / 255f, clearColor.getGreen() / 255f, clearColor.getBlue() / 255f,
+                clearColor.getAlpha() / 255f);
+        GL11.glClearDepth(1.0f); // set clear depth value to farthest
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        GL11.glEnable(GL11.GL_DEPTH_TEST);
+        GL11.glDepthFunc(GL11.GL_LEQUAL); // the type of depth test to do
+        GL11.glHint(GL11.GL_PERSPECTIVE_CORRECTION_HINT, GL11.GL_NICEST); // best perspective correction
 
         /*
-        gl.glLoadIdentity();
-        float[] lmodel_ambient = { 0.5f, 0.5f, 0.5f, 1.0f };
-        gl.glLightModelfv(GL2.GL_LIGHT_MODEL_AMBIENT, lmodel_ambient, 0);
-        */
+         * GL11.glLoadIdentity();
+         * float[] lmodel_ambient = { 0.5f, 0.5f, 0.5f, 1.0f };
+         * GL11.glLightModelfv(GL11.GL_LIGHT_MODEL_AMBIENT, lmodel_ambient, 0);
+         */
 
         // init lighting
-        float[] ambient = {.6f, .6f, .6f, 1.f};
-        float[] diffuse = {.6f, .6f, .6f, 1.0f};
-        float[] position = {0f, 0f, 20f, 1.0f};
+        float[] ambient = { .6f, .6f, .6f, 1.f };
+        float[] diffuse = { .6f, .6f, .6f, 1.0f };
+        float[] position = { 0f, 0f, 20f, 1.0f };
 
-        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_AMBIENT, ambient, 0);
-        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, diffuse, 0);
-        gl.glEnable(GL2.GL_LIGHT0);
-        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, position, 0);
+        GL11.glLightfv(GL11.GL_LIGHT0, GL11.GL_AMBIENT, ambient);
+        GL11.glLightfv(GL11.GL_LIGHT0, GL11.GL_DIFFUSE, diffuse);
+        GL11.glEnable(GL11.GL_LIGHT0);
+        GL11.glLightfv(GL11.GL_LIGHT0, GL11.GL_POSITION, position);
 
         // Allow glColor to set colors
-        gl.glEnable(GL2.GL_COLOR_MATERIAL);
-        gl.glColorMaterial(GL.GL_FRONT, GL2.GL_DIFFUSE);
-        gl.glColorMaterial(GL.GL_FRONT, GL2.GL_AMBIENT);
-        //gl.glColorMaterial(GL.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE);
-        //gl.glColorMaterial(GL.GL_FRONT, GL2.GL_SPECULAR);
+        GL11.glEnable(GL11.GL_COLOR_MATERIAL);
+        GL11.glColorMaterial(GL11.GL_FRONT, GL11.GL_DIFFUSE);
+        GL11.glColorMaterial(GL11.GL_FRONT, GL11.GL_AMBIENT);
+        // GL11.glColorMaterial(GL11.GL_FRONT_AND_BACK, GL11.GL_AMBIENT_AND_DIFFUSE);
+        // GL11.glColorMaterial(GL11.GL_FRONT, GL11.GL_SPECULAR);
 
+        float diffuseMaterial[] = { 0.5f, 0.5f, 0.5f, 1.0f };
 
-        float diffuseMaterial[] =
-                {0.5f, 0.5f, 0.5f, 1.0f};
+        GL11.glMaterialfv(GL11.GL_FRONT, GL11.GL_DIFFUSE, diffuseMaterial);
+        // GL11.glMaterialfv(GL11.GL_FRONT, GL11.GL_SPECULAR, mat_specular, 0);
+        // GL11.glMaterialf(GL11.GL_FRONT, GL11.GL_SHININESS, 25.0f);
 
-        gl.glMaterialfv(GL.GL_FRONT, GL2.GL_DIFFUSE, diffuseMaterial, 0);
-        //gl.glMaterialfv(GL.GL_FRONT, GL2.GL_SPECULAR, mat_specular, 0);
-        //gl.glMaterialf(GL.GL_FRONT, GL2.GL_SHININESS, 25.0f);
+        // GL11.glMaterialfv(GL11.GL_FRONT_AND_BACK, GL11.GL_AMBIENT_AND_DIFFUSE);
 
-        //gl.glMaterialfv(GL.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE);
-
-
-        gl.glEnable(GL2.GL_LIGHTING);
+        GL11.glEnable(GL11.GL_LIGHTING);
         for (Renderable r : objects) {
-            r.init(drawable);
+            r.init();
         }
     }
-
-    /**
-     * Call-back handler for window re-size event. Also called when the drawable is
-     * first set to visible.
-     * GLEventListener method.
-     */
-    @Override
-    public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
-        //logger.log(Level.INFO, "Reshaping OpenGL context.");
+    
+    public void onResize(int x, int y, int width, int height) {
+        // logger.log(Level.INFO, "Reshaping OpenGL context.");
         this.xSize = width;
         this.ySize = height;
-
-        GL2 gl = drawable.getGL().getGL2();  // get the OpenGL 2 graphics context
-        // Set the view port (display area) to cover the entire window
-        gl.glViewport(0, 0, xSize, ySize);
 
         resizeForCamera(objectMin, objectMax, 0.9);
     }
@@ -324,11 +324,12 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
      * Zoom the visualizer to the given region.
      */
     public void zoomToRegion(Position min, Position max, double bufferFactor) {
-        if (min == null || max == null) return;
+        if (min == null || max == null)
+            return;
 
         if (this.ySize == 0) {
             this.ySize = 1;
-        }  // prevent divide by zero
+        } // prevent divide by zero
 
         // Figure out offset compared to the current center.
         Position regionCenter = VisualizerUtils.findCenter(min, max);
@@ -348,11 +349,12 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
      * Zoom to display the given region leaving the suggested buffer.
      */
     private void resizeForCamera(Position min, Position max, double bufferFactor) {
-        if (min == null || max == null) return;
+        if (min == null || max == null)
+            return;
 
         if (this.ySize == 0) {
             this.ySize = 1;
-        }  // prevent divide by zero
+        } // prevent divide by zero
 
         this.center = VisualizerUtils.findCenter(min, max);
         this.scaleFactorBase = VisualizerUtils.findScaleFactor(this.xSize, this.ySize, min, max, bufferFactor);
@@ -366,24 +368,33 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
      * GLEventListener method.
      */
     @Override
-    public void display(GLAutoDrawable drawable) {
-        this.setupPerpective(this.xSize, this.ySize, drawable, ortho);
+    public void paintGL() {
+        // needs lwjgl3-awt 1.9.0 to be published
+//        int w = getFramebufferWidth();
+//        int h = getFramebufferHeight();
+        int w = xSize;
+        int h = ySize;
+        if (w == 0 || h == 0) {
+            return;
+        }
 
-        final GL2 gl = drawable.getGL().getGL2();
-        gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
+        this.setupPerpective(this.xSize, this.ySize, ortho);
+
+        GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+        GL11.glViewport(0, 0, w, h);
 
         // Update normals when an object is scaled
-        gl.glEnable(GL2.GL_NORMALIZE);
+        GL11.glEnable(GL11.GL_NORMALIZE);
 
         // Setup the current matrix so that the projection can be done.
         if (mouseLastWindow != null) {
-            gl.glPushMatrix();
-            gl.glRotated(this.rotation.x, 0.0, 1.0, 0.0);
-            gl.glRotated(this.rotation.y, 1.0, 0.0, 0.0);
-            gl.glTranslated(-this.eye.x - this.center.x, -this.eye.y - this.center.y, -this.eye.z - this.center.z);
+            GL11.glPushMatrix();
+            GL11.glRotated(this.rotation.x, 0.0, 1.0, 0.0);
+            GL11.glRotated(this.rotation.y, 1.0, 0.0, 0.0);
+            GL11.glTranslated(-this.eye.x - this.center.x, -this.eye.y - this.center.y, -this.eye.z - this.center.z);
             this.mouseWorldXY = MouseProjectionUtils.intersectPointWithXYPlane(
-                    drawable, mouseLastWindow.x, mouseLastWindow.y);
-            gl.glPopMatrix();
+                    mouseLastWindow.x, mouseLastWindow.y);
+            GL11.glPopMatrix();
         } else {
             this.mouseWorldXY = new Position(0, 0, 0);
         }
@@ -391,70 +402,88 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
         // Render the different parts of the scene.
         for (Renderable r : objects) {
             // Don't draw disabled renderables.
-            if (!r.isEnabled()) continue;
+            if (!r.isEnabled())
+                continue;
 
-            gl.glPushMatrix();
+            GL11.glPushMatrix();
             // in case a renderable sets the color, set it back to gray and opaque.
-            gl.glColor4f(0.5f, 0.5f, 0.5f, 1f);
+            GL11.glColor4f(0.5f, 0.5f, 0.5f, 1f);
 
             if (r.rotate()) {
-                gl.glRotated(this.rotation.x, 0.0, 1.0, 0.0);
-                gl.glRotated(this.rotation.y, 1.0, 0.0, 0.0);
+                GL11.glRotated(this.rotation.x, 0.0, 1.0, 0.0);
+                GL11.glRotated(this.rotation.y, 1.0, 0.0, 0.0);
             }
             if (r.center()) {
-                gl.glTranslated(-this.eye.x - this.center.x, -this.eye.y - this.center.y, -this.eye.z - this.center.z);
+                GL11.glTranslated(-this.eye.x - this.center.x, -this.eye.y - this.center.y,
+                        -this.eye.z - this.center.z);
             }
 
             if (!r.enableLighting()) {
-                gl.glDisable(GL2.GL_LIGHTING);
+                GL11.glDisable(GL11.GL_LIGHTING);
             }
             try {
-                r.draw(drawable, idle, machineCoord, workCoord, objectMin, objectMax, scaleFactor, mouseWorldXY, rotation);
+                r.draw(idle, machineCoord, workCoord, objectMin, objectMax, scaleFactor, mouseWorldXY,
+                        rotation);
             } catch (Exception e) {
                 logger.log(Level.SEVERE, "An exception occurred while drawing " + r.getClass().getSimpleName(), e);
             }
             if (!r.enableLighting()) {
-                gl.glEnable(GL2.GL_LIGHTING);
-                gl.glEnable(GL2.GL_LIGHT0);
+                GL11.glEnable(GL11.GL_LIGHTING);
+                GL11.glEnable(GL11.GL_LIGHT0);
             }
-            gl.glPopMatrix();
+            GL11.glPopMatrix();
         }
 
         this.fpsCounter.draw();
         this.overlay.draw(this.dimensionsLabel);
 
-        gl.glLoadIdentity();
+        GL11.glLoadIdentity();
+        swapBuffers();
+
         update();
+    }
+    
+    @Override
+    public void repaint() {
+        if (SwingUtilities.isEventDispatchThread()) {
+            render();
+        } else {
+            SwingUtilities.invokeLater(this::render);
+        }
     }
 
     /**
      * Setup the perspective matrix.
      */
-    private void setupPerpective(int x, int y, GLAutoDrawable drawable, boolean ortho) {
-        final GL2 gl = drawable.getGL().getGL2();
+    private void setupPerpective(int x, int y, boolean ortho) {
         float aspectRatio = (float) x / y;
 
         if (ortho) {
-            gl.glMatrixMode(GL_PROJECTION);
-            gl.glLoadIdentity();
-            gl.glOrtho(-0.60 * aspectRatio / scaleFactor, 0.60 * aspectRatio / scaleFactor, -0.60 / scaleFactor, 0.60 / scaleFactor,
+            GL11.glMatrixMode(GL11.GL_PROJECTION);
+            GL11.glLoadIdentity();
+            GL11.glOrtho(-0.60 * aspectRatio / scaleFactor, 0.60 * aspectRatio / scaleFactor, -0.60 / scaleFactor,
+                    0.60 / scaleFactor,
                     -10 / scaleFactor, 10 / scaleFactor);
-            gl.glMatrixMode(GL_MODELVIEW);
-            gl.glLoadIdentity();
+            GL11.glMatrixMode(GL11.GL_MODELVIEW);
+            GL11.glLoadIdentity();
         } else {
+            Matrix4f m = new Matrix4f();
             // Setup perspective projection, with aspect ratio matches viewport
-            gl.glMatrixMode(GL_PROJECTION);  // choose projection matrix
-            gl.glLoadIdentity();             // reset projection matrix
-
-            glu.gluPerspective(45.0, aspectRatio, 0.1, 20000.0); // fovy, aspect, zNear, zFar
+            m.perspective((float) Math.toRadians(45), aspectRatio, 0.1f, 20000.0f);
             // Move camera out and point it at the origin
-            glu.gluLookAt(this.eye.x, this.eye.y, this.eye.z,
+            m.lookAt((float) this.eye.x, (float) this.eye.y, (float) this.eye.z,
                     0, 0, 0,
                     0, 1, 0);
 
+            FloatBuffer fb = BufferUtils.createFloatBuffer(16);
+            m.get(fb);
+
+            GL11.glMatrixMode(GL11.GL_PROJECTION);
+            GL11.glLoadMatrixf(fb);
+
             // Enable the model-view transform
-            gl.glMatrixMode(GL_MODELVIEW);
-            gl.glLoadIdentity(); // reset
+            GL11.glMatrixMode(GL11.GL_MODELVIEW);
+            GL11.glLoadIdentity(); // reset
         }
     }
 
@@ -475,7 +504,8 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
      * GLEventListener method.
      */
     @Override
-    synchronized public void dispose(GLAutoDrawable drawable) {
+    synchronized public void disposeCanvas() {
+        super.disposeCanvas();
         logger.log(Level.INFO, "Disposing OpenGL context.");
     }
 
@@ -499,7 +529,7 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
     }
 
     public void mouseMoved(Point lastPoint) {
-        mouseLastWindow = lastPoint;
+        mouseLastWindow = lastPoint;        
     }
 
     public void mouseRotate(Point point) {

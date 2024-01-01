@@ -18,9 +18,6 @@
  */
 package com.willwinder.ugs.platform.probe.renderable;
 
-import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.GLAutoDrawable;
-import com.jogamp.opengl.util.gl2.GLUT;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_PROBE_PREVIEW;
 import com.willwinder.ugs.platform.probe.ProbeParameters;
@@ -38,11 +35,11 @@ public class ZProbePathPreview extends AbstractProbePreview {
     private Double probeOffset = null;
     private Position start = null;
 
-    private final GLUT glut;
+    // private final GLUT glut;
 
     public ZProbePathPreview() {
         super(10, Localization.getString("probe.visualizer.z-preview"));
-        glut = new GLUT();
+        // glut = new GLUT();
     }
 
     @Override
@@ -73,7 +70,7 @@ public class ZProbePathPreview extends AbstractProbePreview {
     }
 
     @Override
-    public void init(GLAutoDrawable drawable) {
+    public void init() {
     }
 
     @Override
@@ -81,34 +78,34 @@ public class ZProbePathPreview extends AbstractProbePreview {
     }
 
     @Override
-    public void draw(GLAutoDrawable drawable, boolean idle, Position machineCoord, Position workCoord, Position objectMin, Position objectMax, double scaleFactor, Position mouseWorldCoordinates, Position rotation) {
-        if (this.probeDepth == null || this.probeOffset == null) return;
-        final int slices = 10;
-        final int stacks = 10;
+    public void draw(boolean idle, Position machineCoord, Position workCoord, Position objectMin, Position objectMax, double scaleFactor, Position mouseWorldCoordinates, Position rotation) {
+        // if (this.probeDepth == null || this.probeOffset == null) return;
+        // final int slices = 10;
+        // final int stacks = 10;
 
-        int rot = (this.probeDepth > 0) ? 0 : 180;
-        double zAbs = Math.abs(this.probeDepth);
+        // int rot = (this.probeDepth > 0) ? 0 : 180;
+        // double zAbs = Math.abs(this.probeDepth);
 
-        GL2 gl = drawable.getGL().getGL2();
+        // GL2 gl = drawable.getGL().getGL2();
 
-        if (this.start != null && isProbeCycleActive()) {
-            gl.glTranslated(start.x, start.y, start.z);
-        } else {
-            gl.glTranslated(workCoord.x, workCoord.y, workCoord.z);
-        }
-        gl.glRotated(rot, 1, 0, 0);
+        // if (this.start != null && isProbeCycleActive()) {
+        //     gl.glTranslated(start.x, start.y, start.z);
+        // } else {
+        //     gl.glTranslated(workCoord.x, workCoord.y, workCoord.z);
+        // }
+        // gl.glRotated(rot, 1, 0, 0);
 
-        // touch plate
-        gl.glPushMatrix();
-            gl.glTranslated(0, 0, zAbs);
-            glut.glutSolidCylinder(5, this.probeOffset, slices*2, stacks);
-        gl.glPopMatrix();
+        // // touch plate
+        // gl.glPushMatrix();
+        //     gl.glTranslated(0, 0, zAbs);
+        //     glut.glutSolidCylinder(5, this.probeOffset, slices*2, stacks);
+        // gl.glPopMatrix();
 
-        // Everything is going to be red now!
-        gl.glColor4d(8., 0., 0., 1);
-        glut.glutSolidCylinder(.1, zAbs - 0.5, slices, stacks);
-        gl.glTranslated(0, 0, zAbs - 1);
-        glut.glutSolidCone(.2, 1, slices, stacks);
+        // // Everything is going to be red now!
+        // gl.glColor4d(8., 0., 0., 1);
+        // glut.glutSolidCylinder(.1, zAbs - 0.5, slices, stacks);
+        // gl.glTranslated(0, 0, zAbs - 1);
+        // glut.glutSolidCone(.2, 1, slices, stacks);
     }
 
     @Override

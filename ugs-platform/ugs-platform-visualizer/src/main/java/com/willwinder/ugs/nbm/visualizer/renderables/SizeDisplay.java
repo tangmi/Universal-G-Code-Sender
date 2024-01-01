@@ -18,9 +18,6 @@
  */
 package com.willwinder.ugs.nbm.visualizer.renderables;
 
-import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.GLAutoDrawable;
-import com.jogamp.opengl.util.awt.TextRenderer;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
 import com.willwinder.universalgcodesender.model.Position;
@@ -44,7 +41,7 @@ public class SizeDisplay extends Renderable {
     private static final DecimalFormat FORMATTER = new DecimalFormat("#.##");
     private Units units = Units.MM;
 
-    private TextRenderer renderer;
+    // private TextRenderer renderer;
     private float[] color;
     private boolean textRendererDirty = true;
 
@@ -74,9 +71,9 @@ public class SizeDisplay extends Renderable {
     }
 
     @Override
-    public void init(GLAutoDrawable drawable) {
-        renderer = new TextRenderer(new Font("SansSerif", Font.PLAIN, 72));
-        renderer.setColor(color[0], color[1], color[2], color[3]);
+    public void init() {
+        // renderer = new TextRenderer(new Font("SansSerif", Font.PLAIN, 72));
+        // renderer.setColor(color[0], color[1], color[2], color[3]);
         textRendererDirty = false;
     }
 
@@ -87,125 +84,125 @@ public class SizeDisplay extends Renderable {
     }
 
     @Override
-    public void draw(GLAutoDrawable drawable, boolean idle, Position machineCoord, Position workCoord, Position focusMin, Position focusMax, double scaleFactor, Position mouseCoordinates, Position rotation) {
-        if (idle) return;
+    public void draw(boolean idle, Position machineCoord, Position workCoord, Position focusMin, Position focusMax, double scaleFactor, Position mouseCoordinates, Position rotation) {
+        // if (idle) return;
 
-        if (textRendererDirty) init(drawable);
+        // if (textRendererDirty) init(drawable);
 
-        double maxSide = VisualizerUtils.findMaxSide(focusMin, focusMax);
-        double buffer = maxSide * 0.03;
-        double offset = buffer*2;
+        // double maxSide = VisualizerUtils.findMaxSide(focusMin, focusMax);
+        // double buffer = maxSide * 0.03;
+        // double offset = buffer*2;
 
-        GL2 gl = drawable.getGL().getGL2();
+        // GL2 gl = drawable.getGL().getGL2();
 
-        // X
-        gl.glPushMatrix();
-            gl.glTranslated(0, -offset, 0);
-            gl.glColor4fv(color, 0);
-            gl.glLineWidth(2f);
-            gl.glBegin(GL2.GL_LINES);
-                gl.glVertex3d(focusMin.x, focusMin.y, 0);
-                gl.glVertex3d(focusMin.x, focusMin.y-offset, 0);
-                gl.glVertex3d(focusMin.x, focusMin.y-buffer, 0);
-                gl.glVertex3d(focusMax.x, focusMin.y-buffer, 0);
-                gl.glVertex3d(focusMax.x, focusMin.y-offset, 0);
-                gl.glVertex3d(focusMax.x, focusMin.y, 0);
-            gl.glEnd();
+        // // X
+        // gl.glPushMatrix();
+        //     gl.glTranslated(0, -offset, 0);
+        //     gl.glColor4fv(color, 0);
+        //     gl.glLineWidth(2f);
+        //     gl.glBegin(GL2.GL_LINES);
+        //         gl.glVertex3d(focusMin.x, focusMin.y, 0);
+        //         gl.glVertex3d(focusMin.x, focusMin.y-offset, 0);
+        //         gl.glVertex3d(focusMin.x, focusMin.y-buffer, 0);
+        //         gl.glVertex3d(focusMax.x, focusMin.y-buffer, 0);
+        //         gl.glVertex3d(focusMax.x, focusMin.y-offset, 0);
+        //         gl.glVertex3d(focusMax.x, focusMin.y, 0);
+        //     gl.glEnd();
 
-            {
-            renderer.begin3DRendering();
-            double xSize = focusMax.x-focusMin.x;
-            String text = this.getTextForMM(xSize, units);
-            Rectangle2D bounds = renderer.getBounds(text);
-            float w = (float) bounds.getWidth();
-            float h = (float) bounds.getHeight();
+        //     {
+        //     renderer.begin3DRendering();
+        //     double xSize = focusMax.x-focusMin.x;
+        //     String text = this.getTextForMM(xSize, units);
+        //     Rectangle2D bounds = renderer.getBounds(text);
+        //     float w = (float) bounds.getWidth();
+        //     float h = (float) bounds.getHeight();
 
-            float textScaleFactor = (float)(buffer/h);
-            // Center text and move to line.
-            gl.glTranslated((focusMin.x+focusMax.x)/2-(w*textScaleFactor/2),
-                    focusMin.y-offset, 0);
-            //gl.glRotated(-rotation.y, 1.0, 0.0, 0.0);
-            //gl.glRotated(-rotation.x, 0.0, 1.0, 0.0);
-            renderer.draw3D(text,
-                    0f, 0f,
-                    0f, textScaleFactor);
-            renderer.end3DRendering();
-            }
-        gl.glPopMatrix();
+        //     float textScaleFactor = (float)(buffer/h);
+        //     // Center text and move to line.
+        //     gl.glTranslated((focusMin.x+focusMax.x)/2-(w*textScaleFactor/2),
+        //             focusMin.y-offset, 0);
+        //     //gl.glRotated(-rotation.y, 1.0, 0.0, 0.0);
+        //     //gl.glRotated(-rotation.x, 0.0, 1.0, 0.0);
+        //     renderer.draw3D(text,
+        //             0f, 0f,
+        //             0f, textScaleFactor);
+        //     renderer.end3DRendering();
+        //     }
+        // gl.glPopMatrix();
 
-        // Y
-        gl.glPushMatrix();
-            gl.glTranslated(-offset, 0, 0);
-            gl.glColor4fv(color, 0);
-            gl.glLineWidth(2f);
-            gl.glBegin(GL2.GL_LINES);
-                gl.glVertex3d(focusMin.x       , focusMin.y, 0);
-                gl.glVertex3d(focusMin.x-offset, focusMin.y, 0);
-                gl.glVertex3d(focusMin.x-buffer, focusMin.y, 0);
-                gl.glVertex3d(focusMin.x-buffer, focusMax.y, 0);
-                gl.glVertex3d(focusMin.x-offset, focusMax.y, 0);
-                gl.glVertex3d(focusMin.x       , focusMax.y, 0);
-            gl.glEnd();
+        // // Y
+        // gl.glPushMatrix();
+        //     gl.glTranslated(-offset, 0, 0);
+        //     gl.glColor4fv(color, 0);
+        //     gl.glLineWidth(2f);
+        //     gl.glBegin(GL2.GL_LINES);
+        //         gl.glVertex3d(focusMin.x       , focusMin.y, 0);
+        //         gl.glVertex3d(focusMin.x-offset, focusMin.y, 0);
+        //         gl.glVertex3d(focusMin.x-buffer, focusMin.y, 0);
+        //         gl.glVertex3d(focusMin.x-buffer, focusMax.y, 0);
+        //         gl.glVertex3d(focusMin.x-offset, focusMax.y, 0);
+        //         gl.glVertex3d(focusMin.x       , focusMax.y, 0);
+        //     gl.glEnd();
 
-            {
-            renderer.begin3DRendering();
-            double ySize = focusMax.y-focusMin.y;
-            String text = this.getTextForMM(ySize, units);
-            Rectangle2D bounds = renderer.getBounds(text);
-            float w = (float) bounds.getWidth();
-            float h = (float) bounds.getHeight();
+        //     {
+        //     renderer.begin3DRendering();
+        //     double ySize = focusMax.y-focusMin.y;
+        //     String text = this.getTextForMM(ySize, units);
+        //     Rectangle2D bounds = renderer.getBounds(text);
+        //     float w = (float) bounds.getWidth();
+        //     float h = (float) bounds.getHeight();
 
-            float textScaleFactor = (float)(buffer/h);
-            // Center text and move to line.
-            gl.glRotated(90,0,0,1);
-            gl.glTranslated((focusMin.y+focusMax.y)/2-(w*textScaleFactor/2),
-                    -focusMin.x+buffer*1.1, 0);
-            //gl.glRotated(rotation.y, 0.0, 1.0, 0.0);
-            //gl.glRotated(-rotation.x, 1.0, 0.0, 0.0);
-            renderer.draw3D(text,
-                    0f, 0f,
-                    0f, textScaleFactor);
-            renderer.end3DRendering();
-            }
-        gl.glPopMatrix();
+        //     float textScaleFactor = (float)(buffer/h);
+        //     // Center text and move to line.
+        //     gl.glRotated(90,0,0,1);
+        //     gl.glTranslated((focusMin.y+focusMax.y)/2-(w*textScaleFactor/2),
+        //             -focusMin.x+buffer*1.1, 0);
+        //     //gl.glRotated(rotation.y, 0.0, 1.0, 0.0);
+        //     //gl.glRotated(-rotation.x, 1.0, 0.0, 0.0);
+        //     renderer.draw3D(text,
+        //             0f, 0f,
+        //             0f, textScaleFactor);
+        //     renderer.end3DRendering();
+        //     }
+        // gl.glPopMatrix();
 
-        // Z
-        gl.glPushMatrix();
-            gl.glTranslated(offset, 0, 0);
-            gl.glColor4fv(color, 0);
-            gl.glLineWidth(2f);
-            gl.glBegin(GL2.GL_LINES);
-                gl.glVertex3d(focusMax.x       , focusMin.y, focusMin.z);
-                gl.glVertex3d(focusMax.x+offset, focusMin.y, focusMin.z);
-                gl.glVertex3d(focusMax.x+buffer, focusMin.y, focusMin.z);
-                gl.glVertex3d(focusMax.x+buffer, focusMin.y, focusMax.z);
-                gl.glVertex3d(focusMax.x+offset, focusMin.y, focusMax.z);
-                gl.glVertex3d(focusMax.x       , focusMin.y, focusMax.z);
-            gl.glEnd();
+        // // Z
+        // gl.glPushMatrix();
+        //     gl.glTranslated(offset, 0, 0);
+        //     gl.glColor4fv(color, 0);
+        //     gl.glLineWidth(2f);
+        //     gl.glBegin(GL2.GL_LINES);
+        //         gl.glVertex3d(focusMax.x       , focusMin.y, focusMin.z);
+        //         gl.glVertex3d(focusMax.x+offset, focusMin.y, focusMin.z);
+        //         gl.glVertex3d(focusMax.x+buffer, focusMin.y, focusMin.z);
+        //         gl.glVertex3d(focusMax.x+buffer, focusMin.y, focusMax.z);
+        //         gl.glVertex3d(focusMax.x+offset, focusMin.y, focusMax.z);
+        //         gl.glVertex3d(focusMax.x       , focusMin.y, focusMax.z);
+        //     gl.glEnd();
 
-            {
-            renderer.begin3DRendering();
-            double zSize = focusMax.z-focusMin.z;
-            String text = this.getTextForMM(zSize, units);
-            Rectangle2D bounds = renderer.getBounds(text);
-            float w = (float) bounds.getWidth();
-            float h = (float) bounds.getHeight();
+        //     {
+        //     renderer.begin3DRendering();
+        //     double zSize = focusMax.z-focusMin.z;
+        //     String text = this.getTextForMM(zSize, units);
+        //     Rectangle2D bounds = renderer.getBounds(text);
+        //     float w = (float) bounds.getWidth();
+        //     float h = (float) bounds.getHeight();
 
-            float textScaleFactor = (float)(buffer/h);
-            // Center text and move to line.
-            gl.glRotated(90,1,0,0);
-            gl.glTranslated(focusMax.x + buffer*1.1,
-                    (focusMin.z+focusMax.z)/2-(h*textScaleFactor/2),
-                    //focusMin.y-offset,
-                    -focusMin.y);
-            gl.glRotated(-rotation.y-90, 1.0, 0.0, 0.0);
-            gl.glRotated(-rotation.x, 0.0, 1.0, 0.0);
-            renderer.draw3D(text,
-                    0f, 0f,
-                    0f, textScaleFactor);
-            renderer.end3DRendering();
-            }
-        gl.glPopMatrix();
+        //     float textScaleFactor = (float)(buffer/h);
+        //     // Center text and move to line.
+        //     gl.glRotated(90,1,0,0);
+        //     gl.glTranslated(focusMax.x + buffer*1.1,
+        //             (focusMin.z+focusMax.z)/2-(h*textScaleFactor/2),
+        //             //focusMin.y-offset,
+        //             -focusMin.y);
+        //     gl.glRotated(-rotation.y-90, 1.0, 0.0, 0.0);
+        //     gl.glRotated(-rotation.x, 0.0, 1.0, 0.0);
+        //     renderer.draw3D(text,
+        //             0f, 0f,
+        //             0f, textScaleFactor);
+        //     renderer.end3DRendering();
+        //     }
+        // gl.glPopMatrix();
     }
 
     @Override

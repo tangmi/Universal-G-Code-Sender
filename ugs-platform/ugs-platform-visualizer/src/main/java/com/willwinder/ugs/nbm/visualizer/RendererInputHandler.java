@@ -18,7 +18,6 @@
  */
 package com.willwinder.ugs.nbm.visualizer;
 
-import com.jogamp.opengl.util.FPSAnimator;
 import com.willwinder.ugs.nbm.visualizer.renderables.GcodeModel;
 import com.willwinder.ugs.nbm.visualizer.renderables.Selection;
 import com.willwinder.ugs.nbm.visualizer.renderables.SizeDisplay;
@@ -39,6 +38,8 @@ import com.willwinder.universalgcodesender.utils.Settings.FileStats;
 
 import javax.swing.SwingUtilities;
 import java.awt.Point;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -50,6 +51,7 @@ import java.awt.event.MouseWheelListener;
 import java.awt.event.WindowListener;
 import java.util.prefs.PreferenceChangeEvent;
 import java.util.prefs.PreferenceChangeListener;
+import org.lwjgl.opengl.GL;
 
 /**
  * Process all the listeners and call methods in the renderer.
@@ -58,9 +60,9 @@ import java.util.prefs.PreferenceChangeListener;
  */
 public class RendererInputHandler implements
         WindowListener, MouseWheelListener, MouseMotionListener,
-        MouseListener, KeyListener, PreferenceChangeListener, UGSEventListener {
+        MouseListener, KeyListener, PreferenceChangeListener, UGSEventListener, ComponentListener {
     final private GcodeRenderer gcodeRenderer;
-    final private FPSAnimator animator;
+    // final private FPSAnimator animator;
     private final BackendAPI backend;
     private final GcodeModel gcodeModel;
     private final SizeDisplay sizeDisplay;
@@ -70,11 +72,11 @@ public class RendererInputHandler implements
     private static final int HIGH_FPS = 15;
     private static final int LOW_FPS = 4;
 
-    public RendererInputHandler(GcodeRenderer gr, FPSAnimator a, BackendAPI backend) {
+    public RendererInputHandler(GcodeRenderer gr, /* FPSAnimator a, */ BackendAPI backend) {
         gcodeRenderer = gr;
-        animator = a;
+        // animator = a;
         this.backend = backend;
-        animator.start();
+        // animator.start();
         settings = backend.getSettings();
 
         gcodeModel = new GcodeModel(Localization.getString("platform.visualizer.renderable.gcode-model"));
@@ -88,9 +90,9 @@ public class RendererInputHandler implements
     }
     
     private void setFPS(int fps) {
-        animator.stop();
-        animator.setFPS(fps);
-        animator.start();
+        // animator.stop();
+        // animator.setFPS(fps);
+        // animator.start();
     }
 
     @Override
@@ -103,6 +105,8 @@ public class RendererInputHandler implements
         gcodeRenderer.setObjectSize(gcodeModel.getMin(), gcodeModel.getMax());
 
         updateBounds(gcodeModel.getMin(), gcodeModel.getMax());
+        
+        gcodeRenderer.repaint();
     }
 
     /**
@@ -122,7 +126,7 @@ public class RendererInputHandler implements
     @Override
     public void UGSEvent(UGSEvent cse) {
         if (cse instanceof FileStateEvent) {
-            animator.pause();
+            // animator.pause();
             FileStateEvent fileStateEvent = (FileStateEvent) cse;
             switch (fileStateEvent.getFileState()) {
                 case FILE_UNLOADED:
@@ -136,18 +140,21 @@ public class RendererInputHandler implements
                     break;
             }
 
-            animator.resume();
+            // animator.resume();
         } else if (cse instanceof SettingChangedEvent) {
             sizeDisplay.setUnits(settings.getPreferredUnits());
+            gcodeRenderer.repaint();
         } else if (cse instanceof ControllerStatusEvent) {
             ControllerStatusEvent controllerStatusEvent = (ControllerStatusEvent) cse;
             gcodeRenderer.setMachineCoordinate(controllerStatusEvent.getStatus().getMachineCoord());
             gcodeRenderer.setWorkCoordinate(controllerStatusEvent.getStatus().getWorkCoord());
+            gcodeRenderer.repaint();
         } else if (cse instanceof CommandEvent) {
             CommandEvent commandEvent = (CommandEvent) cse;
             if (commandEvent.getCommandEventType() == CommandEventType.COMMAND_COMPLETE && !commandEvent.getCommand().isGenerated()) {
                 gcodeModel.setCurrentCommandNumber(commandEvent.getCommand().getCommandNumber());
             }
+            gcodeRenderer.repaint();
         }
     }
 
@@ -177,11 +184,13 @@ public class RendererInputHandler implements
                 gcodeRenderer.mouseRotate(new Point(x,y));
             }
         }
+        gcodeRenderer.repaint();
     }
 
     @Override
     public void mouseMoved(java.awt.event.MouseEvent e) {
         gcodeRenderer.mouseMoved(new Point(e.getX(), e.getY()));
+        gcodeRenderer.repaint();
     }
 
     /**
@@ -190,6 +199,7 @@ public class RendererInputHandler implements
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
         gcodeRenderer.zoom(e.getWheelRotation());
+        gcodeRenderer.repaint();
     }
     
     /**
@@ -201,16 +211,17 @@ public class RendererInputHandler implements
         // Run this on another thread than the AWT event queue to
         // make sure the call to Animator.stop() completes before
         // exiting
-        new Thread(animator::stop).start();
+        // new Thread(animator::stop).start();
     }
 
     @Override
     public void windowOpened(java.awt.event.WindowEvent e) {
-        new Thread(animator::start).start();
+        // new Thread(animator::start).start();
     }
 
     @Override
     public void windowClosing(java.awt.event.WindowEvent e) {
+        GL.setCapabilities(null);
     }
 
     @Override
@@ -264,6 +275,7 @@ public class RendererInputHandler implements
             selecting = true;
             selectionStart = gcodeRenderer.getMouseWorldLocation();
             selection.setStart(selectionStart);
+            gcodeRenderer.repaint();
         }
     }
 
@@ -277,6 +289,7 @@ public class RendererInputHandler implements
             selectionEnd = gcodeRenderer.getMouseWorldLocation();
             gcodeRenderer.zoomToRegion(selectionStart, selectionEnd, 1.0);
             selection.clear();
+            gcodeRenderer.repaint();
         }
     }
 
@@ -338,6 +351,8 @@ public class RendererInputHandler implements
                     gcodeRenderer.zoom(1);
                 break;
         }
+        
+        gcodeRenderer.repaint();
     }
     
     /**
@@ -346,5 +361,27 @@ public class RendererInputHandler implements
     @Override
     public void keyReleased(KeyEvent ke) {
         setFPS(LOW_FPS);
+        
+        gcodeRenderer.repaint();
+    }
+
+    @Override
+    public void componentResized(ComponentEvent e) {
+        var bounds = e.getComponent().getBounds();
+        gcodeRenderer.onResize((int) bounds.getX(), (int) bounds.getY(), (int) bounds.getWidth(), (int) bounds.getHeight());
+        gcodeRenderer.repaint();
+    }
+
+    @Override
+    public void componentMoved(ComponentEvent e) {
+    }
+
+    @Override
+    public void componentShown(ComponentEvent e) {
+        gcodeRenderer.repaint();
+    }
+
+    @Override
+    public void componentHidden(ComponentEvent e) {
     }
 }

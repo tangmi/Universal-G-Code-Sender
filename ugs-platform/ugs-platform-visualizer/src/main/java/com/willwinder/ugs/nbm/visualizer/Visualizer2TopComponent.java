@@ -18,10 +18,6 @@
  */
 package com.willwinder.ugs.nbm.visualizer;
 
-import com.jogamp.opengl.GLCapabilities;
-import com.jogamp.opengl.GLException;
-import com.jogamp.opengl.awt.GLJPanel;
-import com.jogamp.opengl.util.FPSAnimator;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptionsPanel;
 import com.willwinder.ugs.nbm.visualizer.shared.GcodeRenderer;
 import com.willwinder.ugs.nbp.core.actions.OpenLogDirectoryAction;
@@ -32,6 +28,8 @@ import com.willwinder.ugs.nbp.lib.services.TopComponentLocalizer;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import org.apache.commons.lang3.StringUtils;
+import org.lwjgl.opengl.awt.AWTGLCanvas;
+import org.lwjgl.opengl.awt.GLData;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.modules.OnStart;
@@ -43,6 +41,7 @@ import org.openide.windows.WindowManager;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
@@ -50,19 +49,19 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 
+
+import org.lwjgl.opengl.GL;
+import org.lwjgl.opengl.GL11;
+
+
 /**
  * Setup JOGL canvas, GcodeRenderer and RendererInputHandler.
  */
-@TopComponent.Description(
-        preferredID = "VisualizerTopComponent"
-)
+@TopComponent.Description(preferredID = "VisualizerTopComponent")
 @TopComponent.Registration(mode = com.willwinder.ugs.nbp.lib.Mode.EDITOR_SECONDARY, openAtStartup = true)
 @ActionID(category = Visualizer2TopComponent.VisualizerCategory, id = Visualizer2TopComponent.VisualizerActionId)
 @ActionReference(path = Visualizer2TopComponent.VisualizerWindowPath)
-@TopComponent.OpenActionRegistration(
-        displayName = "<Not localized:VisualizerTopComponent>",
-        preferredID = "VisualizerTopComponent"
-)
+@TopComponent.OpenActionRegistration(displayName = "<Not localized:VisualizerTopComponent>", preferredID = "VisualizerTopComponent")
 public final class Visualizer2TopComponent extends TopComponent {
     public final static String VisualizerTitle = Localization.getString("platform.window.visualizer", lang);
     public final static String VisualizerTooltip = Localization.getString("platform.window.visualizer.tooltip", lang);
@@ -71,7 +70,7 @@ public final class Visualizer2TopComponent extends TopComponent {
     public final static String VisualizerCategory = LocalizingService.CATEGORY_WINDOW;
     private static final Logger logger = Logger.getLogger(Visualizer2TopComponent.class.getName());
     private final BackendAPI backend;
-    private GLJPanel panel;
+    private AWTGLCanvas panel;
     private RendererInputHandler rih;
 
     public Visualizer2TopComponent() {
@@ -111,12 +110,15 @@ public final class Visualizer2TopComponent extends TopComponent {
         add(borderedPanel, BorderLayout.CENTER);
     }
 
-    private JComponent initializeVisualizationPanel() {
+    private Component initializeVisualizationPanel() {
         try {
             panel = makeWindow();
             return panel;
-        } catch (GLException exception) {
-            JLabel errorMessage = new JLabel("<html>Could not initialize OpenGL visualization, please check the log file for details <a href='#'>messages.log</a></html>", JLabel.CENTER);
+        } catch (Exception exception) {
+            JLabel errorMessage = new JLabel(
+                    "<html>Could not initialize OpenGL visualization, please check the log file for details <a href='#'>messages.log</a>.<br>Exception: "
+                            + exception.getLocalizedMessage() + "</html>",
+                    JLabel.CENTER);
             errorMessage.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
@@ -136,11 +138,12 @@ public final class Visualizer2TopComponent extends TopComponent {
         }
 
         logger.log(Level.INFO, "Component closed, panel = " + panel);
-        if (panel == null) return;
+        if (panel == null)
+            return;
 
         remove(panel);
-        //dispose of panel and native resources
-        panel.destroy();
+        // dispose of panel and native resources
+        panel.disposeCanvas();
         panel = null;
     }
 
@@ -149,9 +152,9 @@ public final class Visualizer2TopComponent extends TopComponent {
         super.componentActivated();
         if (panel != null) {
             panel.setSize(getSize());
-            //need to update complete component tree
+            // need to update complete component tree
             invalidate();
-            
+
             if (getTopLevelAncestor() != null) {
                 getTopLevelAncestor().invalidate();
                 getTopLevelAncestor().revalidate();
@@ -159,23 +162,19 @@ public final class Visualizer2TopComponent extends TopComponent {
         }
     }
 
-    private GLJPanel makeWindow() throws GLException {
-        GLCapabilities glCaps = new GLCapabilities(null);
-        final GLJPanel p = new GLJPanel(glCaps);
-
-        GcodeRenderer renderer = Lookup.getDefault().lookup(GcodeRenderer.class);
-        if (renderer == null) {
+    private AWTGLCanvas makeWindow() {
+        GcodeRenderer p = Lookup.getDefault().lookup(GcodeRenderer.class);
+        if (p == null) {
             throw new IllegalArgumentException("Failed to access GcodeRenderer.");
         }
 
-        FPSAnimator animator = new FPSAnimator(p, 15);
-        this.rih = new RendererInputHandler(renderer, animator, backend);
+        // FPSAnimator animator = new FPSAnimator(p, 15);
+        this.rih = new RendererInputHandler(p, /* animator, */ backend);
 
         Preferences pref = NbPreferences.forModule(VisualizerOptionsPanel.class);
         pref.addPreferenceChangeListener(this.rih);
 
-        File f = (backend.getProcessedGcodeFile() != null) ?
-                backend.getProcessedGcodeFile() : backend.getGcodeFile();
+        File f = (backend.getProcessedGcodeFile() != null) ? backend.getProcessedGcodeFile() : backend.getGcodeFile();
         if (f != null) {
             this.rih.setGcodeFile(f.getAbsolutePath());
         }
@@ -195,7 +194,10 @@ public final class Visualizer2TopComponent extends TopComponent {
         // mouse...
         p.addMouseListener(this.rih);
 
-        p.addGLEventListener(renderer);
+        // resize...
+        p.addComponentListener(this.rih);
+        
+        // p.addGLEventListener(renderer);
 
         return p;
     }

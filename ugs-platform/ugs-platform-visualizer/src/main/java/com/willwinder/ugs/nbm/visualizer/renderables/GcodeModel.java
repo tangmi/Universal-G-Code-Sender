@@ -18,10 +18,6 @@
  */
 package com.willwinder.ugs.nbm.visualizer.renderables;
 
-import com.jogamp.common.nio.Buffers;
-import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.GLAutoDrawable;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
 import com.willwinder.universalgcodesender.gcode.DefaultCommandCreator;
@@ -47,9 +43,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.jogamp.opengl.GL.GL_LINES;
-import static com.jogamp.opengl.fixedfunc.GLPointerFunc.GL_COLOR_ARRAY;
-import static com.jogamp.opengl.fixedfunc.GLPointerFunc.GL_VERTEX_ARRAY;
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_MODEL;
 
 /**
@@ -132,57 +125,57 @@ public class GcodeModel extends Renderable {
     }
 
     @Override
-    public void init(GLAutoDrawable drawable) {
+    public void init() {
         generateObject();
     }
 
     @Override
-    public void draw(GLAutoDrawable drawable, boolean idle, Position machineCoord, Position workCoord, Position focusMin, Position focusMax, double scaleFactor, Position mouseCoordinates, Position rotation) {
-        if (!isDrawable) return;
+    public void draw(boolean idle, Position machineCoord, Position workCoord, Position focusMin, Position focusMax, double scaleFactor, Position mouseCoordinates, Position rotation) {
+        // if (!isDrawable) return;
 
-        GL2 gl = drawable.getGL().getGL2();
+        // GL2 gl = drawable.getGL().getGL2();
 
-        // Batch mode if available
-        if (gl.isFunctionAvailable("glGenBuffers")
-                && gl.isFunctionAvailable("glBindBuffer")
-                && gl.isFunctionAvailable("glBufferData")
-                && gl.isFunctionAvailable("glDeleteBuffers")) {
+        // // Batch mode if available
+        // if (gl.isFunctionAvailable("glGenBuffers")
+        //         && gl.isFunctionAvailable("glBindBuffer")
+        //         && gl.isFunctionAvailable("glBufferData")
+        //         && gl.isFunctionAvailable("glDeleteBuffers")) {
 
-            // Initialize OpenGL arrays if required.
-            if (this.vertexBufferDirty && !vertexArrayDirty && !colorArrayDirty) {
-                updateVertexBuffers();
-                this.vertexBufferDirty = false;
-            }
-            if (this.colorArrayDirty) {
-                this.updateGLColorArray(drawable);
-                this.colorArrayDirty = false;
-            }
-            if (this.vertexArrayDirty) {
-                this.updateGLGeometryArray(drawable);
-                this.vertexArrayDirty = false;
-            }
-            gl.glLineWidth(1.0f);
-            gl.glEnableClientState(GL_VERTEX_ARRAY);
-            gl.glEnableClientState(GL_COLOR_ARRAY);
-            gl.glDrawArrays(GL.GL_LINES, 0, numberOfVertices);
-            gl.glDisableClientState(GL_COLOR_ARRAY);
-            gl.glDisableClientState(GL_VERTEX_ARRAY);
-        }
-        // Traditional OpenGL
-        else {
-            gl.glBegin(GL_LINES);
-            gl.glLineWidth(1.0f);
+        //     // Initialize OpenGL arrays if required.
+        //     if (this.vertexBufferDirty && !vertexArrayDirty && !colorArrayDirty) {
+        //         updateVertexBuffers();
+        //         this.vertexBufferDirty = false;
+        //     }
+        //     if (this.colorArrayDirty) {
+        //         this.updateGLColorArray(drawable);
+        //         this.colorArrayDirty = false;
+        //     }
+        //     if (this.vertexArrayDirty) {
+        //         this.updateGLGeometryArray(drawable);
+        //         this.vertexArrayDirty = false;
+        //     }
+        //     gl.glLineWidth(1.0f);
+        //     gl.glEnableClientState(GL_VERTEX_ARRAY);
+        //     gl.glEnableClientState(GL_COLOR_ARRAY);
+        //     gl.glDrawArrays(GL.GL_LINES, 0, numberOfVertices);
+        //     gl.glDisableClientState(GL_COLOR_ARRAY);
+        //     gl.glDisableClientState(GL_VERTEX_ARRAY);
+        // }
+        // // Traditional OpenGL
+        // else {
+        //     gl.glBegin(GL_LINES);
+        //     gl.glLineWidth(1.0f);
 
-            int verts = 0;
-            int colors = 0;
-            for (int i = 0; i < pointList.size(); i++) {
-                gl.glColor4ub(lineColorData[colors++], lineColorData[colors++], lineColorData[colors++], lineColorData[colors++]);
-                gl.glVertex3d(lineVertexData[verts++], lineVertexData[verts++], lineVertexData[verts++]);
-                gl.glColor4ub(lineColorData[colors++], lineColorData[colors++], lineColorData[colors++], lineColorData[colors++]);
-                gl.glVertex3d(lineVertexData[verts++], lineVertexData[verts++], lineVertexData[verts++]);
-            }
-            gl.glEnd();
-        }
+        //     int verts = 0;
+        //     int colors = 0;
+        //     for (int i = 0; i < pointList.size(); i++) {
+        //         gl.glColor4ub(lineColorData[colors++], lineColorData[colors++], lineColorData[colors++], lineColorData[colors++]);
+        //         gl.glVertex3d(lineVertexData[verts++], lineVertexData[verts++], lineVertexData[verts++]);
+        //         gl.glColor4ub(lineColorData[colors++], lineColorData[colors++], lineColorData[colors++], lineColorData[colors++]);
+        //         gl.glVertex3d(lineVertexData[verts++], lineVertexData[verts++], lineVertexData[verts++]);
+        //     }
+        //     gl.glEnd();
+        // }
     }
 
     public Position getMin() {
@@ -309,51 +302,51 @@ public class GcodeModel extends Renderable {
     /**
      * Initialize or update open gl geometry array in native buffer objects.
      */
-    private void updateGLGeometryArray(GLAutoDrawable drawable) {
-        GL2 gl = drawable.getGL().getGL2();
+    private void updateGLGeometryArray() {
+        // GL2 gl = drawable.getGL().getGL2();
 
-        // Reset buffer and set to null of new geometry doesn't fit.
-        if (lineVertexBuffer != null) {
-            ((Buffer) lineVertexBuffer).clear();
-            if (lineVertexBuffer.remaining() < lineVertexData.length) {
-                lineVertexBuffer = null;
-            }
-        }
+        // // Reset buffer and set to null of new geometry doesn't fit.
+        // if (lineVertexBuffer != null) {
+        //     ((Buffer) lineVertexBuffer).clear();
+        //     if (lineVertexBuffer.remaining() < lineVertexData.length) {
+        //         lineVertexBuffer = null;
+        //     }
+        // }
 
-        if (lineVertexBuffer == null) {
-            lineVertexBuffer = Buffers.newDirectFloatBuffer(lineVertexData.length);
-        }
+        // if (lineVertexBuffer == null) {
+        //     lineVertexBuffer = Buffers.newDirectFloatBuffer(lineVertexData.length);
+        // }
 
-        lineVertexBuffer.put(lineVertexData);
-        ((Buffer) lineVertexBuffer).flip();
-        gl.glVertexPointer(3, GL.GL_FLOAT, 0, lineVertexBuffer);
+        // lineVertexBuffer.put(lineVertexData);
+        // ((Buffer) lineVertexBuffer).flip();
+        // gl.glVertexPointer(3, GL.GL_FLOAT, 0, lineVertexBuffer);
     }
 
     /**
      * Initialize or update open gl color array in native buffer objects.
      */
-    private void updateGLColorArray(GLAutoDrawable drawable) {
-        GL2 gl = drawable.getGL().getGL2();
+    private void updateGLColorArray() {
+        // GL2 gl = drawable.getGL().getGL2();
 
-        // Reset buffer and set to null of new colors don't fit.
-        if (lineColorBuffer != null) {
-            ((Buffer) lineColorBuffer).clear();
+        // // Reset buffer and set to null of new colors don't fit.
+        // if (lineColorBuffer != null) {
+        //     ((Buffer) lineColorBuffer).clear();
 
-            if (lineColorBuffer.remaining() < lineColorData.length) {
-                lineColorBuffer = null;
-            }
-        }
+        //     if (lineColorBuffer.remaining() < lineColorData.length) {
+        //         lineColorBuffer = null;
+        //     }
+        // }
 
-        if (lineColorBuffer == null) {
-            if (lineColorData == null) {
-                updateVertexBuffers();
-            }
-            lineColorBuffer = Buffers.newDirectByteBuffer(this.lineColorData.length);
-        }
+        // if (lineColorBuffer == null) {
+        //     if (lineColorData == null) {
+        //         updateVertexBuffers();
+        //     }
+        //     lineColorBuffer = Buffers.newDirectByteBuffer(this.lineColorData.length);
+        // }
 
-        lineColorBuffer.put(lineColorData);
-        ((Buffer) lineColorBuffer).flip();
-        gl.glColorPointer(4, GL.GL_UNSIGNED_BYTE, 0, lineColorBuffer);
+        // lineColorBuffer.put(lineColorData);
+        // ((Buffer) lineColorBuffer).flip();
+        // gl.glColorPointer(4, GL.GL_UNSIGNED_BYTE, 0, lineColorBuffer);
     }
 
     @Override

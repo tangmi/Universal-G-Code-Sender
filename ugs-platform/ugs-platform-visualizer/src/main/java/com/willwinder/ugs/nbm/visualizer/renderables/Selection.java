@@ -19,8 +19,6 @@
 package com.willwinder.ugs.nbm.visualizer.renderables;
 
 import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
-import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.GLAutoDrawable;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import com.willwinder.universalgcodesender.model.Position;
 
@@ -62,7 +60,7 @@ public class Selection extends Renderable {
     }
 
     @Override
-    public void init(GLAutoDrawable drawable) {
+    public void init() {
     }
 
     @Override
@@ -70,20 +68,20 @@ public class Selection extends Renderable {
     }
 
     @Override
-    public void draw(GLAutoDrawable drawable, boolean idle, Position machineCoord, Position workCoord, Position objectMin, Position objectMax, double scaleFactor, Position mouseWorldCoordinates, Position rotation) {
-        if (start == null || end == null) return;
+    public void draw(boolean idle, Position machineCoord, Position workCoord, Position objectMin, Position objectMax, double scaleFactor, Position mouseWorldCoordinates, Position rotation) {
+        // if (start == null || end == null) return;
 
-        GL2 gl = drawable.getGL().getGL2();
+        // GL2 gl = drawable.getGL().getGL2();
 
-        gl.glColor4f(.3f,.3f,.3f, .09f);
+        // gl.glColor4f(.3f,.3f,.3f, .09f);
 
-        // floor - cover entire model and a little extra.
-        gl.glBegin(GL2.GL_QUADS);
-            gl.glVertex3d(start.x, start.y, 0);
-            gl.glVertex3d(start.x, end.y  , 0);
-            gl.glVertex3d(end.x  , end.y  , 0);
-            gl.glVertex3d(end.x  , start.y, 0);
-        gl.glEnd();
+        // // floor - cover entire model and a little extra.
+        // gl.glBegin(GL2.GL_QUADS);
+        //     gl.glVertex3d(start.x, start.y, 0);
+        //     gl.glVertex3d(start.x, end.y  , 0);
+        //     gl.glVertex3d(end.x  , end.y  , 0);
+        //     gl.glVertex3d(end.x  , start.y, 0);
+        // gl.glEnd();
     }
 
     @Override

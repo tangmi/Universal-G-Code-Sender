@@ -18,9 +18,6 @@
  */
 package com.willwinder.ugs.nbp.editor.renderer;
 
-import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.GL2ES3;
-import com.jogamp.opengl.GLAutoDrawable;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import com.willwinder.ugs.nbm.visualizer.renderables.GcodeModel;
 import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
@@ -86,28 +83,28 @@ public class Highlight extends Renderable {
     }
 
     @Override
-    public void init(GLAutoDrawable drawable) {
+    public void init() {
         // Not used
     }
 
     @Override
-    public void draw(GLAutoDrawable drawable, boolean idle, Position machineCoord, Position workCoord, Position focusMin, Position focusMax, double scaleFactor, Position mouseCoordinates, Position rotation) {
-        if (points.isEmpty() && startLine > 0 && endLine > 0) {
-            return;
-        }
+    public void draw(boolean idle, Position machineCoord, Position workCoord, Position focusMin, Position focusMax, double scaleFactor, Position mouseCoordinates, Position rotation) {
+        // if (points.isEmpty() && startLine > 0 && endLine > 0) {
+        //     return;
+        // }
 
-        // Scale was changed since last render, regenerate points
-        if (this.scaleFactor != scaleFactor) {
-            this.scaleFactor = scaleFactor;
-            generateBufferedLines();
-        }
+        // // Scale was changed since last render, regenerate points
+        // if (this.scaleFactor != scaleFactor) {
+        //     this.scaleFactor = scaleFactor;
+        //     generateBufferedLines();
+        // }
 
-        float[] c = VisualizerOptions.colorToFloatArray(highlightColor);
-        GL2 gl = drawable.getGL().getGL2();
-        gl.glBegin(GL2ES3.GL_QUADS);
-            gl.glColor4fv(c, 0);
-            points.forEach(point -> gl.glVertex3d(point.x, point.y, point.z));
-        gl.glEnd();
+        // float[] c = VisualizerOptions.colorToFloatArray(highlightColor);
+        // GL2 gl = drawable.getGL().getGL2();
+        // gl.glBegin(GL2ES3.GL_QUADS);
+        //     gl.glColor4fv(c, 0);
+        //     points.forEach(point -> gl.glVertex3d(point.x, point.y, point.z));
+        // gl.glEnd();
     }
 
 

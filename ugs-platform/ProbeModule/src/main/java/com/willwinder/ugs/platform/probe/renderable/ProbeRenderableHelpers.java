@@ -18,9 +18,6 @@
  */
 package com.willwinder.ugs.platform.probe.renderable;
 
-import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.util.gl2.GLUT;
 import com.willwinder.universalgcodesender.model.Position;
 
 /**
@@ -97,86 +94,86 @@ public class ProbeRenderableHelpers {
         }
     }
 
-    public static void drawTouchPlate(GL2 gl, GLUT glut, Position at, double inset, double size, Position offsets,
-            double bumpThickness, double plateThickness, Side X, Side Y) {
-        gl.glPushMatrix();
-            gl.glTranslated(
-                    at.x + X.side(size-2*inset)/2,
-                    at.y + Y.side(size-2*inset)/2,
-                    at.z + Math.signum(at.z) * ((bumpThickness/2) - inset));
+    // public static void drawTouchPlate(GL2 gl, GLUT glut, Position at, double inset, double size, Position offsets,
+    //         double bumpThickness, double plateThickness, Side X, Side Y) {
+    //     gl.glPushMatrix();
+    //         gl.glTranslated(
+    //                 at.x + X.side(size-2*inset)/2,
+    //                 at.y + Y.side(size-2*inset)/2,
+    //                 at.z + Math.signum(at.z) * ((bumpThickness/2) - inset));
 
-            gl.glColor4d(.8, .8, .8, 1);
-            // y bump
-            gl.glPushMatrix();
-                gl.glTranslated(0, Y.side((offsets.y-size)/2), 0);
-                gl.glScaled(size, offsets.y, bumpThickness);
-                glut.glutSolidCube(1);
-            gl.glPopMatrix();
+    //         gl.glColor4d(.8, .8, .8, 1);
+    //         // y bump
+    //         gl.glPushMatrix();
+    //             gl.glTranslated(0, Y.side((offsets.y-size)/2), 0);
+    //             gl.glScaled(size, offsets.y, bumpThickness);
+    //             glut.glutSolidCube(1);
+    //         gl.glPopMatrix();
 
-            // x bump
-            gl.glColor4d(.8, .8, .8, 1);
-            gl.glPushMatrix();
-                gl.glTranslated(X.side((offsets.x-size)/2), 0, 0);
-                gl.glScaled(offsets.x, size, bumpThickness);
-                glut.glutSolidCube(1);
-            gl.glPopMatrix();
+    //         // x bump
+    //         gl.glColor4d(.8, .8, .8, 1);
+    //         gl.glPushMatrix();
+    //             gl.glTranslated(X.side((offsets.x-size)/2), 0, 0);
+    //             gl.glScaled(offsets.x, size, bumpThickness);
+    //             glut.glutSolidCube(1);
+    //         gl.glPopMatrix();
 
-            gl.glColor4d(1, 1, 1, 1);
-            gl.glColorMaterial(GL.GL_FRONT_AND_BACK, GL2.GL_AMBIENT);
+    //         gl.glColor4d(1, 1, 1, 1);
+    //         gl.glColorMaterial(GL.GL_FRONT_AND_BACK, GL2.GL_AMBIENT);
 
-            // big piece
-            gl.glPushMatrix();
-                gl.glTranslated(0, 0, (bumpThickness/2) - (plateThickness / 2));
-                gl.glScaled(size-0.1, size-0.1, plateThickness - 0.1);
-                glut.glutSolidCube(1);
-            gl.glPopMatrix();
+    //         // big piece
+    //         gl.glPushMatrix();
+    //             gl.glTranslated(0, 0, (bumpThickness/2) - (plateThickness / 2));
+    //             gl.glScaled(size-0.1, size-0.1, plateThickness - 0.1);
+    //             glut.glutSolidCube(1);
+    //         gl.glPopMatrix();
 
-        gl.glPopMatrix();
-    }
+    //     gl.glPopMatrix();
+    // }
 
-    public static void drawArrow(GL2 gl, GLUT glut, Position from, Position to) {
-        double vx = to.x - from.x;
-        double vy = to.y - from.y;
-        double vz = to.z - from.z;
+    // public static void drawArrow(GL2 gl, GLUT glut, Position from, Position to) {
+    //     double vx = to.x - from.x;
+    //     double vy = to.y - from.y;
+    //     double vz = to.z - from.z;
 
-        //handle the degenerate case of z1 == z2 with an approximation
-        if(vz == 0)
-            vz = .0001;
+    //     //handle the degenerate case of z1 == z2 with an approximation
+    //     if(vz == 0)
+    //         vz = .0001;
 
-        double v = Math.sqrt( vx*vx + vy*vy + vz*vz );
-        double ax = 57.2957795*Math.acos( vz/v );
-        if ( vz < 0.0 )
-            ax = -ax;
-        double rx = -vy*vz;
-        double ry = vx*vz;
+    //     double v = Math.sqrt( vx*vx + vy*vy + vz*vz );
+    //     double ax = 57.2957795*Math.acos( vz/v );
+    //     if ( vz < 0.0 )
+    //         ax = -ax;
+    //     double rx = -vy*vz;
+    //     double ry = vx*vz;
 
-        gl.glPushMatrix();
-            gl.glTranslated(from.x, from.y, from.z);
-            gl.glRotated(ax, rx, ry, 0.0);
-            glut.glutSolidCylinder(.1, v - 0.5, slices, stacks);
-            gl.glTranslated(0, 0, v - 1);
-            glut.glutSolidCone(.2, 1, slices, stacks);
-        gl.glPopMatrix();
-    }
+    //     gl.glPushMatrix();
+    //         gl.glTranslated(from.x, from.y, from.z);
+    //         gl.glRotated(ax, rx, ry, 0.0);
+    //         glut.glutSolidCylinder(.1, v - 0.5, slices, stacks);
+    //         gl.glTranslated(0, 0, v - 1);
+    //         glut.glutSolidCone(.2, 1, slices, stacks);
+    //     gl.glPopMatrix();
+    // }
 
-    /**
-     * Renders the list of triangles. Usefull to render complex models from STL data.
-     *
-     * @param GL2 gl
-     * @param Triangle[] triangles
-     */
-    public static void drawTriangleSet(GL2 gl, Triangle[] triangles) {
-        if (triangles.length == 0) return;
+    // /**
+    //  * Renders the list of triangles. Usefull to render complex models from STL data.
+    //  *
+    //  * @param GL2 gl
+    //  * @param Triangle[] triangles
+    //  */
+    // public static void drawTriangleSet(GL2 gl, Triangle[] triangles) {
+    //     if (triangles.length == 0) return;
 
-        gl.glBegin(GL2.GL_TRIANGLES);
+    //     gl.glBegin(GL2.GL_TRIANGLES);
 
-        for (Triangle triangle : triangles) {
-          gl.glNormal3d(triangle.xn, triangle.yn, triangle.zn);
-          gl.glVertex3d(triangle.x1, triangle.y1, triangle.z1);
-          gl.glVertex3d(triangle.x2, triangle.y2, triangle.z2);
-          gl.glVertex3d(triangle.x3, triangle.y3, triangle.z3);
-        }
+    //     for (Triangle triangle : triangles) {
+    //       gl.glNormal3d(triangle.xn, triangle.yn, triangle.zn);
+    //       gl.glVertex3d(triangle.x1, triangle.y1, triangle.z1);
+    //       gl.glVertex3d(triangle.x2, triangle.y2, triangle.z2);
+    //       gl.glVertex3d(triangle.x3, triangle.y3, triangle.z3);
+    //     }
 
-        gl.glEnd();
-    }
+    //     gl.glEnd();
+    // }
 }

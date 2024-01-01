@@ -39,10 +39,6 @@
 
 package com.willwinder.universalgcodesender.uielements.helpers;
 
-import com.jogamp.opengl.GLDrawable;
-import com.jogamp.opengl.GLException;
-import com.jogamp.opengl.util.awt.TextRenderer;
-import com.jogamp.opengl.util.texture.Texture;
 import java.awt.Font;
 import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
@@ -60,8 +56,7 @@ public class FPSCounter {
   public static final int LOWER_RIGHT = 4;
 
   private int textLocation = LOWER_RIGHT;
-  private GLDrawable drawable;
-  private TextRenderer renderer;
+  // private TextRenderer renderer;
   final static private DecimalFormat format = new DecimalFormat("####.00");
   private int frameCount;
   private long startTime;
@@ -78,8 +73,8 @@ public class FPSCounter {
       @param textSize the point size of the font to use
       @throws GLException if an OpenGL context is not current when the constructor is called
   */
-  public FPSCounter(GLDrawable drawable, int textSize) throws GLException {
-    this(drawable, new Font("SansSerif", Font.BOLD, textSize));
+  public FPSCounter( int textSize) {
+    this( new Font("SansSerif", Font.BOLD, textSize));
   }
 
   /** Creates a new FPSCounter with the given font. An OpenGL context
@@ -89,8 +84,8 @@ public class FPSCounter {
       @param font the font to use
       @throws GLException if an OpenGL context is not current when the constructor is called
   */
-  public FPSCounter(GLDrawable drawable, Font font) throws GLException {
-    this(drawable, font, true, true);
+  public FPSCounter( Font font) {
+    this( font, true, true);
   }
 
   /** Creates a new FPSCounter with the given font and rendering
@@ -103,12 +98,11 @@ public class FPSCounter {
       @param useFractionalMetrics whether to use fractional font
       @throws GLException if an OpenGL context is not current when the constructor is called
   */
-  public FPSCounter(GLDrawable drawable,
+  public FPSCounter(
                     Font font,
                     boolean antialiased,
-                    boolean useFractionalMetrics) throws GLException {
-    this.drawable = drawable;
-    renderer = new TextRenderer(font, antialiased, useFractionalMetrics);
+                    boolean useFractionalMetrics) {
+    // renderer = new TextRenderer(font, antialiased, useFractionalMetrics);
   }
 
   /** Gets the relative location where the text of this FPSCounter
@@ -142,8 +136,8 @@ public class FPSCounter {
         completely transparent, 1.0f = completely opaque
       @throws GLException If an OpenGL context is not current when this method is called
   */
-  public void setColor(float r, float g, float b, float a) throws GLException {
-    renderer.setColor(r, g, b, a);
+  public void setColor(float r, float g, float b, float a) {
+    // renderer.setColor(r, g, b, a);
   }
 
   /** Updates the FPSCounter's internal timer and counter and draws
@@ -151,80 +145,80 @@ public class FPSCounter {
       once per frame.
   */
   public void draw() {
-    if (startTime == 0) {
-      startTime = System.currentTimeMillis();
-    }
+    // if (startTime == 0) {
+    //   startTime = System.currentTimeMillis();
+    // }
 
-    if (++frameCount >= 100) {
-      long endTime = System.currentTimeMillis();
-      float fps = 100.0f / (float) (endTime - startTime) * 1000;
-      recomputeFPSSize(fps);
-      frameCount = 0;
-      startTime = System.currentTimeMillis();
+    // if (++frameCount >= 100) {
+    //   long endTime = System.currentTimeMillis();
+    //   float fps = 100.0f / (float) (endTime - startTime) * 1000;
+    //   recomputeFPSSize(fps);
+    //   frameCount = 0;
+    //   startTime = System.currentTimeMillis();
 
-      fpsText = "FPS: " + format.format(fps);
-    }
+    //   fpsText = "FPS: " + format.format(fps);
+    // }
 
-    if (fpsText != null) {
-      renderer.beginRendering(drawable.getSurfaceWidth(), drawable.getSurfaceHeight());
-      // Figure out the location at which to draw the text
-      int x = 0;
-      int y = 0;
-      switch (textLocation) {
-        case UPPER_LEFT:
-          x = fpsOffset;
-          y = drawable.getSurfaceHeight() - fpsHeight - fpsOffset;
-          break;
+    // if (fpsText != null) {
+    //   renderer.beginRendering(drawable.getSurfaceWidth(), drawable.getSurfaceHeight());
+    //   // Figure out the location at which to draw the text
+    //   int x = 0;
+    //   int y = 0;
+    //   switch (textLocation) {
+    //     case UPPER_LEFT:
+    //       x = fpsOffset;
+    //       y = drawable.getSurfaceHeight() - fpsHeight - fpsOffset;
+    //       break;
 
-        case UPPER_RIGHT:
-          x = drawable.getSurfaceWidth() - fpsWidth - fpsOffset;
-          y = drawable.getSurfaceHeight() - fpsHeight - fpsOffset;
-          break;
+    //     case UPPER_RIGHT:
+    //       x = drawable.getSurfaceWidth() - fpsWidth - fpsOffset;
+    //       y = drawable.getSurfaceHeight() - fpsHeight - fpsOffset;
+    //       break;
 
-        case LOWER_LEFT:
-          x = fpsOffset;
-          y = fpsOffset;
-          break;
+    //     case LOWER_LEFT:
+    //       x = fpsOffset;
+    //       y = fpsOffset;
+    //       break;
 
-        case LOWER_RIGHT:
-          x = drawable.getSurfaceWidth() - fpsWidth - fpsOffset;
-          y = fpsOffset;
-          break;
-        default:
-          break;
-      }
+    //     case LOWER_RIGHT:
+    //       x = drawable.getSurfaceWidth() - fpsWidth - fpsOffset;
+    //       y = fpsOffset;
+    //       break;
+    //     default:
+    //       break;
+    //   }
 
-      renderer.draw(fpsText, x, y);
-      renderer.endRendering();
-    }
+    //   renderer.draw(fpsText, x, y);
+    //   renderer.endRendering();
+    // }
   }
 
-  private void recomputeFPSSize(float fps) {
-    String fpsText;
-    int magnitude;
-    if (fps >= 10000) {
-      fpsText = "10000.00";
-      magnitude = 5;
-    } else if (fps >= 1000) {
-      fpsText = "1000.00";
-      magnitude = 4;
-    } else if (fps >= 100) {
-      fpsText = "100.00";
-      magnitude = 3;
-    } else if (fps >= 10) {
-      fpsText = "10.00";
-      magnitude = 2;
-    } else {
-      fpsText = "9.00";
-      magnitude = 1;
-    }
+  // private void recomputeFPSSize(float fps) {
+  //   String fpsText;
+  //   int magnitude;
+  //   if (fps >= 10000) {
+  //     fpsText = "10000.00";
+  //     magnitude = 5;
+  //   } else if (fps >= 1000) {
+  //     fpsText = "1000.00";
+  //     magnitude = 4;
+  //   } else if (fps >= 100) {
+  //     fpsText = "100.00";
+  //     magnitude = 3;
+  //   } else if (fps >= 10) {
+  //     fpsText = "10.00";
+  //     magnitude = 2;
+  //   } else {
+  //     fpsText = "9.00";
+  //     magnitude = 1;
+  //   }
 
-    if (magnitude > this.fpsMagnitude) {
-      Rectangle2D bounds = renderer.getBounds("FPS: " + fpsText);
-      fpsWidth = (int) bounds.getWidth();
-      fpsHeight = (int) bounds.getHeight();
-      fpsOffset = (int) (fpsHeight * 0.5f);
-      this.fpsMagnitude = magnitude;
-    }
-  }
+  //   if (magnitude > this.fpsMagnitude) {
+  //     Rectangle2D bounds = renderer.getBounds("FPS: " + fpsText);
+  //     fpsWidth = (int) bounds.getWidth();
+  //     fpsHeight = (int) bounds.getHeight();
+  //     fpsOffset = (int) (fpsHeight * 0.5f);
+  //     this.fpsMagnitude = magnitude;
+  //   }
+  // }
 }

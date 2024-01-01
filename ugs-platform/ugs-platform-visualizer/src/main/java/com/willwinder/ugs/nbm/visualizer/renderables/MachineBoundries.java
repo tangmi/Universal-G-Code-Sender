@@ -18,8 +18,6 @@
 */
 package com.willwinder.ugs.nbm.visualizer.renderables;
 
-import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.GLAutoDrawable;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
@@ -28,7 +26,6 @@ import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.model.*;
 import com.willwinder.universalgcodesender.model.events.FirmwareSettingEvent;
 
-import static com.jogamp.opengl.GL.GL_LINES;
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.*;
 
 /**
@@ -106,7 +103,7 @@ public class MachineBoundries extends Renderable {
     }
 
     @Override
-    public void init(GLAutoDrawable drawable) {
+    public void init() {
         // Not used
     }
 
@@ -123,99 +120,99 @@ public class MachineBoundries extends Renderable {
     }
 
     @Override
-    public void draw(GLAutoDrawable drawable, boolean idle, Position machineCoord, Position workCoord, Position focusMin, Position focusMax, double scaleFactor, Position mouseWorldCoordinates, Position rotation) {
-        if (!softLimitsEnabled) {
-            return;
-        }
-        double xOffset = workCoord.x - machineCoord.x;
-        double yOffset = workCoord.y - machineCoord.y;
-        double zOffset = workCoord.z - machineCoord.z;
+    public void draw(boolean idle, Position machineCoord, Position workCoord, Position focusMin, Position focusMax, double scaleFactor, Position mouseWorldCoordinates, Position rotation) {
+        // if (!softLimitsEnabled) {
+        //     return;
+        // }
+        // double xOffset = workCoord.x - machineCoord.x;
+        // double yOffset = workCoord.y - machineCoord.y;
+        // double zOffset = workCoord.z - machineCoord.z;
 
-        Position bottomLeft = new Position((minPosition.getX() * invertX) + xOffset, (minPosition.getY() * invertY) + yOffset, (minPosition.getZ() * invertZ) + zOffset);
-        Position topRight = new Position(xOffset, yOffset, zOffset);
+        // Position bottomLeft = new Position((minPosition.getX() * invertX) + xOffset, (minPosition.getY() * invertY) + yOffset, (minPosition.getZ() * invertZ) + zOffset);
+        // Position topRight = new Position(xOffset, yOffset, zOffset);
 
-        GL2 gl = drawable.getGL().getGL2();
-        gl.glPushMatrix();
-        drawBase(gl, bottomLeft, topRight);
-        drawSides(gl, bottomLeft, topRight);
-        drawAxisLines(gl, bottomLeft, topRight);
-        gl.glPopMatrix();
+        // GL2 gl = drawable.getGL().getGL2();
+        // gl.glPushMatrix();
+        // drawBase(gl, bottomLeft, topRight);
+        // drawSides(gl, bottomLeft, topRight);
+        // drawAxisLines(gl, bottomLeft, topRight);
+        // gl.glPopMatrix();
     }
 
-    private void drawBase(GL2 gl, Position bottomLeft, Position topRight) {
-        double bottomZ = Math.min(bottomLeft.getZ(), topRight.getZ());
-        gl.glColor4fv(machineBoundryBottomColor, 0);
-        gl.glBegin(GL2.GL_QUADS);
-        gl.glVertex3d(bottomLeft.x, bottomLeft.y, bottomZ);
-        gl.glVertex3d(bottomLeft.x, topRight.y, bottomZ);
-        gl.glVertex3d(topRight.x, topRight.y, bottomZ);
-        gl.glVertex3d(topRight.x, bottomLeft.y, bottomZ);
-        gl.glEnd();
-    }
+    // private void drawBase(GL2 gl, Position bottomLeft, Position topRight) {
+    //     double bottomZ = Math.min(bottomLeft.getZ(), topRight.getZ());
+    //     gl.glColor4fv(machineBoundryBottomColor, 0);
+    //     gl.glBegin(GL2.GL_QUADS);
+    //     gl.glVertex3d(bottomLeft.x, bottomLeft.y, bottomZ);
+    //     gl.glVertex3d(bottomLeft.x, topRight.y, bottomZ);
+    //     gl.glVertex3d(topRight.x, topRight.y, bottomZ);
+    //     gl.glVertex3d(topRight.x, bottomLeft.y, bottomZ);
+    //     gl.glEnd();
+    // }
 
-    private void drawAxisLines(GL2 gl, Position bottomLeft, Position topRight) {
-        double offset = 0.001;
-        gl.glLineWidth(5f);
-        gl.glBegin(GL_LINES);
-        // X Axis Line
-        gl.glColor4fv(yAxisColor, 0);
-        gl.glVertex3d(0, bottomLeft.y, offset);
-        gl.glVertex3d(0, topRight.y, offset);
+    // private void drawAxisLines(GL2 gl, Position bottomLeft, Position topRight) {
+    //     double offset = 0.001;
+    //     gl.glLineWidth(5f);
+    //     gl.glBegin(GL_LINES);
+    //     // X Axis Line
+    //     gl.glColor4fv(yAxisColor, 0);
+    //     gl.glVertex3d(0, bottomLeft.y, offset);
+    //     gl.glVertex3d(0, topRight.y, offset);
 
-        gl.glVertex3d(0, bottomLeft.y, offset);
-        gl.glVertex3d(0, topRight.y, offset);
+    //     gl.glVertex3d(0, bottomLeft.y, offset);
+    //     gl.glVertex3d(0, topRight.y, offset);
 
-        // Y Axis Line
-        gl.glColor4fv(xAxisColor, 0);
-        gl.glVertex3d(bottomLeft.x, 0, offset);
-        gl.glVertex3d(topRight.x, 0, offset);
+    //     // Y Axis Line
+    //     gl.glColor4fv(xAxisColor, 0);
+    //     gl.glVertex3d(bottomLeft.x, 0, offset);
+    //     gl.glVertex3d(topRight.x, 0, offset);
 
-        gl.glVertex3d(bottomLeft.x, 0, offset);
-        gl.glVertex3d(topRight.x, 0, offset);
+    //     gl.glVertex3d(bottomLeft.x, 0, offset);
+    //     gl.glVertex3d(topRight.x, 0, offset);
 
-        // Z Axis Line
-        gl.glColor4fv(zAxisColor, 0);
-        gl.glVertex3d(0, 0, bottomLeft.z);
-        gl.glVertex3d(0, 0, Math.max(topRight.z, -bottomLeft.z));
-        gl.glEnd();
-    }
+    //     // Z Axis Line
+    //     gl.glColor4fv(zAxisColor, 0);
+    //     gl.glVertex3d(0, 0, bottomLeft.z);
+    //     gl.glVertex3d(0, 0, Math.max(topRight.z, -bottomLeft.z));
+    //     gl.glEnd();
+    // }
 
-    private void drawSides(GL2 gl, Position bottomLeft, Position topRight) {
-        double offset = 0.001;
-        gl.glLineWidth(3f);
-        gl.glBegin(GL_LINES);
-        gl.glColor4fv(machineBoundryLineColor, 0);
-        gl.glVertex3d(bottomLeft.x, bottomLeft.y, bottomLeft.getZ() + offset);
-        gl.glVertex3d(bottomLeft.x, topRight.y, bottomLeft.getZ() + offset);
-        gl.glVertex3d(bottomLeft.x, topRight.y, bottomLeft.getZ() + offset);
-        gl.glVertex3d(topRight.x, topRight.y, bottomLeft.getZ() + offset);
-        gl.glVertex3d(topRight.x, topRight.y, bottomLeft.getZ() + offset);
-        gl.glVertex3d(topRight.x, bottomLeft.y, bottomLeft.getZ() + offset);
-        gl.glVertex3d(topRight.x, bottomLeft.y, bottomLeft.getZ() + offset);
-        gl.glVertex3d(bottomLeft.x, bottomLeft.y, bottomLeft.getZ() + offset);
+    // private void drawSides(GL2 gl, Position bottomLeft, Position topRight) {
+    //     double offset = 0.001;
+    //     gl.glLineWidth(3f);
+    //     gl.glBegin(GL_LINES);
+    //     gl.glColor4fv(machineBoundryLineColor, 0);
+    //     gl.glVertex3d(bottomLeft.x, bottomLeft.y, bottomLeft.getZ() + offset);
+    //     gl.glVertex3d(bottomLeft.x, topRight.y, bottomLeft.getZ() + offset);
+    //     gl.glVertex3d(bottomLeft.x, topRight.y, bottomLeft.getZ() + offset);
+    //     gl.glVertex3d(topRight.x, topRight.y, bottomLeft.getZ() + offset);
+    //     gl.glVertex3d(topRight.x, topRight.y, bottomLeft.getZ() + offset);
+    //     gl.glVertex3d(topRight.x, bottomLeft.y, bottomLeft.getZ() + offset);
+    //     gl.glVertex3d(topRight.x, bottomLeft.y, bottomLeft.getZ() + offset);
+    //     gl.glVertex3d(bottomLeft.x, bottomLeft.y, bottomLeft.getZ() + offset);
 
-        gl.glVertex3d(bottomLeft.x, bottomLeft.y, topRight.getZ() + offset);
-        gl.glVertex3d(bottomLeft.x, topRight.y, topRight.getZ() + offset);
-        gl.glVertex3d(bottomLeft.x, topRight.y, topRight.getZ() + offset);
-        gl.glVertex3d(topRight.x, topRight.y, topRight.getZ() + offset);
-        gl.glVertex3d(topRight.x, topRight.y, topRight.getZ() + offset);
-        gl.glVertex3d(topRight.x, bottomLeft.y, topRight.getZ() + offset);
-        gl.glVertex3d(topRight.x, bottomLeft.y, topRight.getZ() + offset);
-        gl.glVertex3d(bottomLeft.x, bottomLeft.y, topRight.getZ() + offset);
+    //     gl.glVertex3d(bottomLeft.x, bottomLeft.y, topRight.getZ() + offset);
+    //     gl.glVertex3d(bottomLeft.x, topRight.y, topRight.getZ() + offset);
+    //     gl.glVertex3d(bottomLeft.x, topRight.y, topRight.getZ() + offset);
+    //     gl.glVertex3d(topRight.x, topRight.y, topRight.getZ() + offset);
+    //     gl.glVertex3d(topRight.x, topRight.y, topRight.getZ() + offset);
+    //     gl.glVertex3d(topRight.x, bottomLeft.y, topRight.getZ() + offset);
+    //     gl.glVertex3d(topRight.x, bottomLeft.y, topRight.getZ() + offset);
+    //     gl.glVertex3d(bottomLeft.x, bottomLeft.y, topRight.getZ() + offset);
 
-        gl.glVertex3d(bottomLeft.x, bottomLeft.y, bottomLeft.getZ());
-        gl.glVertex3d(bottomLeft.x, bottomLeft.y, topRight.getZ());
+    //     gl.glVertex3d(bottomLeft.x, bottomLeft.y, bottomLeft.getZ());
+    //     gl.glVertex3d(bottomLeft.x, bottomLeft.y, topRight.getZ());
 
-        gl.glVertex3d(bottomLeft.x, topRight.y, bottomLeft.getZ());
-        gl.glVertex3d(bottomLeft.x, topRight.y, topRight.getZ());
+    //     gl.glVertex3d(bottomLeft.x, topRight.y, bottomLeft.getZ());
+    //     gl.glVertex3d(bottomLeft.x, topRight.y, topRight.getZ());
 
-        gl.glVertex3d(topRight.x, bottomLeft.y, bottomLeft.getZ());
-        gl.glVertex3d(topRight.x, bottomLeft.y, topRight.getZ());
+    //     gl.glVertex3d(topRight.x, bottomLeft.y, bottomLeft.getZ());
+    //     gl.glVertex3d(topRight.x, bottomLeft.y, topRight.getZ());
 
-        gl.glVertex3d(topRight.x, topRight.y, bottomLeft.getZ());
-        gl.glVertex3d(topRight.x, topRight.y, topRight.getZ());
-        gl.glEnd();
-    }
+    //     gl.glVertex3d(topRight.x, topRight.y, bottomLeft.getZ());
+    //     gl.glVertex3d(topRight.x, topRight.y, topRight.getZ());
+    //     gl.glEnd();
+    // }
 
     @Override
     public boolean isEnabled() {

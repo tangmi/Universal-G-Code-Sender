@@ -18,15 +18,12 @@
  */
 package com.willwinder.ugs.platform.probe.renderable;
 
-import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.GLAutoDrawable;
-import com.jogamp.opengl.util.gl2.GLUT;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_PROBE_PREVIEW;
 import com.willwinder.ugs.platform.probe.ProbeParameters;
 import com.willwinder.ugs.platform.probe.ProbeSettings;
 import com.willwinder.ugs.platform.probe.renderable.ProbeRenderableHelpers.Triangle;
-import static com.willwinder.ugs.platform.probe.renderable.ProbeRenderableHelpers.drawArrow;
+// import static com.willwinder.ugs.platform.probe.renderable.ProbeRenderableHelpers.drawArrow;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
@@ -41,7 +38,7 @@ public class HoleCenterPathPreview extends AbstractProbePreview
     private ProbeParameters pc = null;
     private double hcDiameter = 0;
 
-    private final GLUT glut;
+    // private final GLUT glut;
 
     private final Triangle[] stlImportedHoleModel = {
         new Triangle(-4.928080e-01, -8.450041e-02, 1.000000e+00, -4.928080e-01, -8.450041e-02, 0.000000e+00, -5.000000e-01, -6.123234e-17, 1.000000e+00),
@@ -212,7 +209,7 @@ public class HoleCenterPathPreview extends AbstractProbePreview
 
     public HoleCenterPathPreview() {
         super(10, Localization.getString("probe.visualizer.hole-center-preview"));
-        glut = new GLUT();
+        // glut = new GLUT();
         ProbeSettings.addPreferenceChangeListener(e -> this.hcDiameter = ProbeSettings.getHcDiameter());
     }
 
@@ -253,7 +250,7 @@ public class HoleCenterPathPreview extends AbstractProbePreview
     }
 
     @Override
-    public void init(GLAutoDrawable drawable) {
+    public void init() {
     }
 
     @Override
@@ -265,62 +262,62 @@ public class HoleCenterPathPreview extends AbstractProbePreview
     }
 
     @Override
-    public void draw(GLAutoDrawable drawable, boolean idle, Position machineCoord, Position workCoord, Position objectMin, Position objectMax, double scaleFactor, Position mouseWorldCoordinates, Position rotation) {
-        double inset = 0.5;
+    public void draw(boolean idle, Position machineCoord, Position workCoord, Position objectMin, Position objectMax, double scaleFactor, Position mouseWorldCoordinates, Position rotation) {
+        // double inset = 0.5;
 
-        if (invalidSettings()) return;
+        // if (invalidSettings()) return;
 
-        GL2 gl = drawable.getGL().getGL2();
+        // GL2 gl = drawable.getGL().getGL2();
 
-        if (startWork != null && pc.endPosition == null && isProbeCycleActive()) {
-            // The WCS is reset at the start of these operations.
-            if (pc.startPosition != null) {
-            }
-            // Follow tool.
-            else {
-                gl.glTranslated(startWork.x, startWork.y, startWork.z);
-            }
-        }
-        // Follow tool.
-        else {
-            gl.glTranslated(workCoord.x, workCoord.y, workCoord.z);
-        }
+        // if (startWork != null && pc.endPosition == null && isProbeCycleActive()) {
+        //     // The WCS is reset at the start of these operations.
+        //     if (pc.startPosition != null) {
+        //     }
+        //     // Follow tool.
+        //     else {
+        //         gl.glTranslated(startWork.x, startWork.y, startWork.z);
+        //     }
+        // }
+        // // Follow tool.
+        // else {
+        //     gl.glTranslated(workCoord.x, workCoord.y, workCoord.z);
+        // }
 
-        gl.glColor4d(.8, .8, .8, 1);
-        drawHoleModel(gl, hcDiameter, hcDiameter / 4.0); // holeDepth is not imporant, so for now just calculate it
+        // gl.glColor4d(.8, .8, .8, 1);
+        // drawHoleModel(gl, hcDiameter, hcDiameter / 4.0); // holeDepth is not imporant, so for now just calculate it
 
-        // draw arrows
-        gl.glColor4d(8., 0., 0., 1);
+        // // draw arrows
+        // gl.glColor4d(8., 0., 0., 1);
 
-        // x probe arrows
-        drawArrow(gl, glut,
-                new Position(0, 0, 0),
-                new Position(-0.5 * hcDiameter, 0, 0));
-        drawArrow(gl, glut,
-                new Position(-0.5 * hcDiameter, -inset, 0),
-                new Position(+0.5 * hcDiameter, -inset, 0));
-        drawArrow(gl, glut,
-                new Position(+0.5 * hcDiameter, 0, 0),
-                new Position(0, 0, 0));
+        // // x probe arrows
+        // drawArrow(gl, glut,
+        //         new Position(0, 0, 0),
+        //         new Position(-0.5 * hcDiameter, 0, 0));
+        // drawArrow(gl, glut,
+        //         new Position(-0.5 * hcDiameter, -inset, 0),
+        //         new Position(+0.5 * hcDiameter, -inset, 0));
+        // drawArrow(gl, glut,
+        //         new Position(+0.5 * hcDiameter, 0, 0),
+        //         new Position(0, 0, 0));
 
-        // y probe arrows
-        drawArrow(gl, glut,
-                new Position(0, 0, 0),
-                new Position(0, -0.5 * hcDiameter, 0));
-        drawArrow(gl, glut,
-                new Position(inset, -0.5 * hcDiameter, 0),
-                new Position(inset, +0.5 * hcDiameter, 0));
-        drawArrow(gl, glut,
-                new Position(0, +0.5 * hcDiameter, 0),
-                new Position(0, 0, 0));
+        // // y probe arrows
+        // drawArrow(gl, glut,
+        //         new Position(0, 0, 0),
+        //         new Position(0, -0.5 * hcDiameter, 0));
+        // drawArrow(gl, glut,
+        //         new Position(inset, -0.5 * hcDiameter, 0),
+        //         new Position(inset, +0.5 * hcDiameter, 0));
+        // drawArrow(gl, glut,
+        //         new Position(0, +0.5 * hcDiameter, 0),
+        //         new Position(0, 0, 0));
     }
 
-    private void drawHoleModel(GL2 gl, double holeDiameter, double holeDepth) {
-        gl.glEnable(GL2.GL_NORMALIZE);
-        gl.glPushMatrix();
-        gl.glTranslated(0, 0, -holeDepth/2); // move the model Z to middle
-        gl.glScaled(holeDiameter, holeDiameter, holeDepth); // scale the model
-        ProbeRenderableHelpers.drawTriangleSet(gl, stlImportedHoleModel);
-        gl.glPopMatrix();
-    }
+    // private void drawHoleModel(GL2 gl, double holeDiameter, double holeDepth) {
+    //     gl.glEnable(GL2.GL_NORMALIZE);
+    //     gl.glPushMatrix();
+    //     gl.glTranslated(0, 0, -holeDepth/2); // move the model Z to middle
+    //     gl.glScaled(holeDiameter, holeDiameter, holeDepth); // scale the model
+    //     ProbeRenderableHelpers.drawTriangleSet(gl, stlImportedHoleModel);
+    //     gl.glPopMatrix();
+    // }
 }

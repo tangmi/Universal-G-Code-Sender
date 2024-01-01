@@ -18,10 +18,6 @@
  */
 package com.willwinder.ugs.nbm.visualizer.renderables;
 
-import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.GLAutoDrawable;
-import com.jogamp.opengl.glu.GLU;
-import com.jogamp.opengl.glu.GLUquadric;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
 import com.willwinder.universalgcodesender.model.Position;
@@ -40,8 +36,8 @@ import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUAL
 public class MouseOver extends Renderable {
     private static final Logger logger = Logger.getLogger(MouseOver.class.getName());
 
-    private static final GLU GLU = new GLU();
-    private static GLUquadric GQ;
+    // private static final GLU GLU = new GLU();
+    // private static GLUquadric GQ;
 
     public MouseOver(String title) {
         super(8, title);
@@ -58,8 +54,8 @@ public class MouseOver extends Renderable {
     }
 
     @Override
-    public void init(GLAutoDrawable drawable) {
-        GQ = GLU.gluNewQuadric();
+    public void init() {
+        // GQ = GLU.gluNewQuadric();
     }
 
     @Override
@@ -73,25 +69,25 @@ public class MouseOver extends Renderable {
     }
 
     @Override
-    public void draw(GLAutoDrawable drawable, boolean idle, Position machineCoord, Position workCoord, Position objectMin, Position objectMax, double scaleFactor, Position mouseWorldCoordinates, Position rotation) {
-        if (mouseWorldCoordinates == null) return;
+    public void draw(boolean idle, Position machineCoord, Position workCoord, Position objectMin, Position objectMax, double scaleFactor, Position mouseWorldCoordinates, Position rotation) {
+        // if (mouseWorldCoordinates == null) return;
 
-        if (inBounds(mouseWorldCoordinates, objectMin, objectMax)) {
-            GL2 gl = drawable.getGL().getGL2();
+        // if (inBounds(mouseWorldCoordinates, objectMin, objectMax)) {
+        //     GL2 gl = drawable.getGL().getGL2();
 
-            double scale = 1. / (scaleFactor * 2);
+        //     double scale = 1. / (scaleFactor * 2);
 
-            gl.glPushMatrix();
-                gl.glTranslated(mouseWorldCoordinates.x, mouseWorldCoordinates.y, 0.);
-                gl.glScaled(scale, scale, scale);
+        //     gl.glPushMatrix();
+        //         gl.glTranslated(mouseWorldCoordinates.x, mouseWorldCoordinates.y, 0.);
+        //         gl.glScaled(scale, scale, scale);
 
-                gl.glColor4fv(VisualizerOptions.colorToFloatArray(Color.WHITE), 0);
-                GLU.gluQuadricNormals(GQ, GLU.GLU_SMOOTH);
-                GLU.gluCylinder(GQ, 0f, .03f, .2, 16, 1);
-                gl.glTranslated(0, 0, 0.2);
-                GLU.gluCylinder(GQ, 0.03f, .0f, .01, 16, 1);
-            gl.glPopMatrix();
-        }
+        //         gl.glColor4fv(VisualizerOptions.colorToFloatArray(Color.WHITE), 0);
+        //         GLU.gluQuadricNormals(GQ, GLU.GLU_SMOOTH);
+        //         GLU.gluCylinder(GQ, 0f, .03f, .2, 16, 1);
+        //         gl.glTranslated(0, 0, 0.2);
+        //         GLU.gluCylinder(GQ, 0.03f, .0f, .01, 16, 1);
+        //     gl.glPopMatrix();
+        // }
     }
 
     @Override

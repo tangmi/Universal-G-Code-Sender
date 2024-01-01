@@ -20,9 +20,6 @@ package com.willwinder.ugs.platform.surfacescanner.renderable;
 
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.Iterables;
-import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.GLAutoDrawable;
-import com.jogamp.opengl.util.gl2.GLUT;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
 import com.willwinder.universalgcodesender.model.CNCPoint;
@@ -40,7 +37,7 @@ import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUAL
  * @author wwinder
  */
 public class AutoLevelPreview extends Renderable {
-    private final GLUT glut;
+    // private final GLUT glut;
 
     private ImmutableCollection<Position> positions;
     private Position[][] grid = null;
@@ -55,7 +52,7 @@ public class AutoLevelPreview extends Renderable {
     public AutoLevelPreview(String title) {
         super(10, title);
 
-        glut = new GLUT();
+        // glut = new GLUT();
 
         reloadPreferences(new VisualizerOptions());
     }
@@ -71,7 +68,7 @@ public class AutoLevelPreview extends Renderable {
     }
 
     @Override
-    public void init(GLAutoDrawable drawable) {
+    public void init() {
     }
 
     @Override
@@ -91,136 +88,136 @@ public class AutoLevelPreview extends Renderable {
     }
 
     @Override
-    public void draw(GLAutoDrawable drawable, boolean idle, Position machineCoord, Position workCoord, Position objectMin, Position objectMax, double scaleFactor, Position mouseWorldCoordinates, Position rotation) {
+    public void draw(boolean idle, Position machineCoord, Position workCoord, Position objectMin, Position objectMax, double scaleFactor, Position mouseWorldCoordinates, Position rotation) {
 
-        // Don't draw something invalid.
-        if (positions == null || positions.isEmpty()) {
-            return;
-        }
+        // // Don't draw something invalid.
+        // if (positions == null || positions.isEmpty()) {
+        //     return;
+        // }
 
-        Position first = Iterables.getFirst(positions, null);
-        Units unit = first.getUnits();
+        // Position first = Iterables.getFirst(positions, null);
+        // Units unit = first.getUnits();
 
-        double objectX = objectMax.x - objectMin.x;
-        double objectY = objectMax.y - objectMin.y;
-        double diameter = Math.max(objectX * 0.005, objectY * 0.005);
+        // double objectX = objectMax.x - objectMin.x;
+        // double objectY = objectMax.y - objectMin.y;
+        // double diameter = Math.max(objectX * 0.005, objectY * 0.005);
 
-        double minx, miny;
-        double maxx, maxy;
-        double minz, maxz;
+        // double minx, miny;
+        // double maxx, maxy;
+        // double minz, maxz;
 
-        minx = maxx = first.x;
-        miny = maxy = first.y;
-        minz = maxz = first.z;
+        // minx = maxx = first.x;
+        // miny = maxy = first.y;
+        // minz = maxz = first.z;
 
-        GL2 gl = drawable.getGL().getGL2();
-        gl.glPushMatrix();
-        // Scale inch to mm if needed
-        double scale = UnitUtils.scaleUnits(unit, Units.MM);
-        if (unit != Units.MM) {
-            gl.glScaled(scale, scale, scale);
-        }
+        // GL2 gl = drawable.getGL().getGL2();
+        // gl.glPushMatrix();
+        // // Scale inch to mm if needed
+        // double scale = UnitUtils.scaleUnits(unit, Units.MM);
+        // if (unit != Units.MM) {
+        //     gl.glScaled(scale, scale, scale);
+        // }
 
-        // Balls indicating the probe start locations.
-        gl.glColor4fv(new float[]{0.1f, 0.1f, 0.1f, 1.0f}, 0);
-        for (Position p : positions) {
-            gl.glPushMatrix();
-            gl.glTranslated(p.x, p.y, p.z);
-            glut.glutSolidSphere(diameter / scale, 7, 7);
+        // // Balls indicating the probe start locations.
+        // gl.glColor4fv(new float[]{0.1f, 0.1f, 0.1f, 1.0f}, 0);
+        // for (Position p : positions) {
+        //     gl.glPushMatrix();
+        //     gl.glTranslated(p.x, p.y, p.z);
+        //     glut.glutSolidSphere(diameter / scale, 7, 7);
 
-            // update min/max
-            minx = Math.min(minx, p.x);
-            maxx = Math.max(maxx, p.x);
-            miny = Math.min(miny, p.y);
-            maxz = Math.max(maxz, p.z);
-            minz = Math.min(minz, p.z);
-            maxy = Math.max(maxy, p.y);
-            gl.glPopMatrix();
-        }
+        //     // update min/max
+        //     minx = Math.min(minx, p.x);
+        //     maxx = Math.max(maxx, p.x);
+        //     miny = Math.min(miny, p.y);
+        //     maxz = Math.max(maxz, p.z);
+        //     minz = Math.min(minz, p.z);
+        //     maxy = Math.max(maxy, p.y);
+        //     gl.glPopMatrix();
+        // }
 
-        // Outline of probe area
-        gl.glPushMatrix();
-        gl.glTranslated(
-                (minx + maxx) / 2,
-                (miny + maxy) / 2,
-                (minz + maxz) / 2);
-        gl.glScaled(maxx - minx, maxy - miny, maxz - minz);
-        gl.glColor4fv(new float[]{0.3f, 0, 0, 0.1f}, 0);
-        glut.glutWireCube((float) 1.);
-        gl.glPopMatrix();
+        // // Outline of probe area
+        // gl.glPushMatrix();
+        // gl.glTranslated(
+        //         (minx + maxx) / 2,
+        //         (miny + maxy) / 2,
+        //         (minz + maxz) / 2);
+        // gl.glScaled(maxx - minx, maxy - miny, maxz - minz);
+        // gl.glColor4fv(new float[]{0.3f, 0, 0, 0.1f}, 0);
+        // glut.glutWireCube((float) 1.);
+        // gl.glPopMatrix();
 
-        drawProbedSurface(gl);
-        gl.glPopMatrix();
+        // drawProbedSurface(gl);
+        // gl.glPopMatrix();
     }
 
-    private void setColorForZ(GL2 gl, double zPos) {
-        float ratio = (float) ((zPos - minZ) / (maxZ - minZ));
-        float r = ratio * high[0] + (1 - ratio) * low[0];
-        float g = ratio * high[1] + (1 - ratio) * low[1];
-        float b = ratio * high[2] + (1 - ratio) * low[2];
-        float a = ratio * high[3] + (1 - ratio) * low[3];
+    // private void setColorForZ(GL2 gl, double zPos) {
+    //     float ratio = (float) ((zPos - minZ) / (maxZ - minZ));
+    //     float r = ratio * high[0] + (1 - ratio) * low[0];
+    //     float g = ratio * high[1] + (1 - ratio) * low[1];
+    //     float b = ratio * high[2] + (1 - ratio) * low[2];
+    //     float a = ratio * high[3] + (1 - ratio) * low[3];
 
-        gl.glColor4f(r, g, b, a);
-    }
+    //     gl.glColor4f(r, g, b, a);
+    // }
 
-    private void drawProbedSurface(GL2 gl) {
-        if (this.grid == null) {
-            return;
-        }
+    // private void drawProbedSurface(GL2 gl) {
+    //     if (this.grid == null) {
+    //         return;
+    //     }
 
-        /*
-    0,5 ?   ?   ?   ?   ? 5,5
+    //     /*
+    // 0,5 ?   ?   ?   ?   ? 5,5
 
-        *   ?   ?   ?   ?
-          \
-        *   *   ?   ?   ?
-          x   \
-        *   *   *   ?   ?
-          x   x   \
-    0,0 *   *   *   *   ? 5,0
+    //     *   ?   ?   ?   ?
+    //       \
+    //     *   *   ?   ?   ?
+    //       x   \
+    //     *   *   *   ?   ?
+    //       x   x   \
+    // 0,0 *   *   *   *   ? 5,0
 
-        */
+    //     */
 
-        gl.glBegin(GL2.GL_TRIANGLES);
-        int xLen = this.grid.length;
-        for (int x = 0; x < xLen - 1; x++) {
-            if (this.grid[x] == null || this.grid[x + 1] == null) {
-                continue;
-            }
+    //     gl.glBegin(GL2.GL_TRIANGLES);
+    //     int xLen = this.grid.length;
+    //     for (int x = 0; x < xLen - 1; x++) {
+    //         if (this.grid[x] == null || this.grid[x + 1] == null) {
+    //             continue;
+    //         }
 
-            for (int y = 0; y < this.grid[x].length - 1; y++) {
-                Position pos1 = this.grid[x][y];
-                Position pos2 = this.grid[x + 1][y];
-                Position pos3 = this.grid[x][y + 1];
-                Position pos4 = this.grid[x + 1][y + 1];
+    //         for (int y = 0; y < this.grid[x].length - 1; y++) {
+    //             Position pos1 = this.grid[x][y];
+    //             Position pos2 = this.grid[x + 1][y];
+    //             Position pos3 = this.grid[x][y + 1];
+    //             Position pos4 = this.grid[x + 1][y + 1];
 
-                // Bottom left of quad
-                if (pos1 != null && pos2 != null && pos3 != null) {
-                    setColorForZ(gl, pos1.z);
-                    gl.glVertex3d(pos1.x, pos1.y, pos1.z); // Left Of Triangle (Front)
+    //             // Bottom left of quad
+    //             if (pos1 != null && pos2 != null && pos3 != null) {
+    //                 setColorForZ(gl, pos1.z);
+    //                 gl.glVertex3d(pos1.x, pos1.y, pos1.z); // Left Of Triangle (Front)
 
-                    setColorForZ(gl, pos3.z);
-                    gl.glVertex3d(pos3.x, pos3.y, pos3.z); // Top Of Triangle (Front)
+    //                 setColorForZ(gl, pos3.z);
+    //                 gl.glVertex3d(pos3.x, pos3.y, pos3.z); // Top Of Triangle (Front)
 
-                    setColorForZ(gl, pos2.z);
-                    gl.glVertex3d(pos2.x, pos2.y, pos2.z); // Right Of Triangle (Front)
-                }
-                // Top right of quad
-                if (pos2 != null && pos3 != null && pos4 != null) {
-                    setColorForZ(gl, pos4.z);
-                    gl.glVertex3d(pos4.x, pos4.y, pos4.z); // Right Of Triangle (Front)
+    //                 setColorForZ(gl, pos2.z);
+    //                 gl.glVertex3d(pos2.x, pos2.y, pos2.z); // Right Of Triangle (Front)
+    //             }
+    //             // Top right of quad
+    //             if (pos2 != null && pos3 != null && pos4 != null) {
+    //                 setColorForZ(gl, pos4.z);
+    //                 gl.glVertex3d(pos4.x, pos4.y, pos4.z); // Right Of Triangle (Front)
 
-                    setColorForZ(gl, pos3.z);
-                    gl.glVertex3d(pos3.x, pos3.y, pos3.z); // Top Of Triangle (Front)
+    //                 setColorForZ(gl, pos3.z);
+    //                 gl.glVertex3d(pos3.x, pos3.y, pos3.z); // Top Of Triangle (Front)
 
-                    setColorForZ(gl, pos2.z);
-                    gl.glVertex3d(pos2.x, pos2.y, pos2.z); // Left Of Triangle (Front)
-                }
-            }
-        }
+    //                 setColorForZ(gl, pos2.z);
+    //                 gl.glVertex3d(pos2.x, pos2.y, pos2.z); // Left Of Triangle (Front)
+    //             }
+    //         }
+    //     }
 
-        gl.glEnd();
-    }
+    //     gl.glEnd();
+    // }
 
     private void updateMinMaxZ() {
         // Figure out the min/max scanned points
